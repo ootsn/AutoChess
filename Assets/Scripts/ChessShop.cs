@@ -42,7 +42,7 @@ public class ChessShop : MonoBehaviour
     private bool notFlashRed;
     private JsonData data;
     private Dictionary<string, ChessData> chesses = new Dictionary<string, ChessData>();
-    private Pair<string, int>[] chessOnSale;
+    private ChessCommodity[] chessOnSale;
     private ChessPool[] chessPool;
 
     private readonly string chess2dFolderPath = "Prefabs/Chess_2d";
@@ -119,9 +119,9 @@ public class ChessShop : MonoBehaviour
             this.totalCount--;
         }
 
-        public void Increase(string chessName)
+        public void Increase(ChessCount chessCount)
         {
-            this[nameToIndex[chessName]].count++;
+            chessCount.count++;
             this.totalCount++;
         }
     }
@@ -198,6 +198,27 @@ public class ChessShop : MonoBehaviour
         }
     }
 
+    private class ChessCommodity
+    {
+        public ChessCount chessCount;
+        public int cost;
+        public bool inUse;
+
+        public ChessCommodity()
+        {
+            chessCount = null;
+            cost = 0;
+            inUse = false;
+        }
+
+        public ChessCommodity(ChessCount chessCount, int cost, bool inUse)
+        {
+            this.chessCount = chessCount;
+            this.cost = cost;
+            this.inUse = inUse;
+        }
+    }
+
     void Start()
     {
         data = JsonConvert.DeserializeObject<JsonData>(dataJson.text);
@@ -223,10 +244,10 @@ public class ChessShop : MonoBehaviour
 
         LoadData();
 
-        chessOnSale = new Pair<string, int>[chessButtons.Length];
+        chessOnSale = new ChessCommodity[chessButtons.Length];
         for (int i = 0; i < chessButtons.Length; i++)
         {
-            chessOnSale[i] = new Pair<string, int>(null, -1);
+            chessOnSale[i] = new ChessCommodity(new ChessCount(), -1, false);
         }
 
         chessButtons[0].GetComponent<Button>().onClick.AddListener(() => { BuyChess(0); });
@@ -428,30 +449,28 @@ public class ChessShop : MonoBehaviour
         PrepareChessPool();
     }
 
-    bool RandomGetChessByCost(out string chessName, int cost)
+    bool RandomGetChessByCost(out ChessCount chessCount, int cost)
     {
-        ChessCount chessCount;
         if (GetChessSetByCost(cost).RandomGetChessName(out chessCount))
         {
-            chessName = chessCount.name;
-            chesses[chessName].pull();
+            chesses[chessCount.name].pull();
             GetChessSetByCost(cost).Decrease(chessCount);
 
             return true;
         }
         else
         {
-            chessName = null;
+            chessCount = null;
             return false;
         }
     }
 
-    void PutChessBack(Pair<string, int> chess)
+    void PutChessBack(ChessCommodity chessCommodity)
     {
-        if (chess.Item1 != null)
+        if (chessCommodity.inUse == true)
         {
-            GetChessSetByCost(chess.Item2).Increase(chess.Item1);
-            chesses[chess.Item1].push();
+            GetChessSetByCost(chessCommodity.cost).Increase(chessCommodity.chessCount);
+            chesses[chessCommodity.chessCount.name].push();
         }
     }
 
@@ -469,8 +488,8 @@ public class ChessShop : MonoBehaviour
         chessButtons[index].GetComponent<Image>().enabled = true;
         chessButtons[index].transform.GetChild(0).GetComponent<Image>().enabled = true;
 
-        chessButtons[index].transform.GetChild(0).GetComponent<RectTransform>().localPosition = chesses[chessOnSale[index].Item1].c2d.GetComponent<RectTransform>().localPosition;
-        chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite = chesses[chessOnSale[index].Item1].c2d.GetComponent<Image>().sprite;
+        chessButtons[index].transform.GetChild(0).GetComponent<RectTransform>().localPosition = chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<RectTransform>().localPosition;
+        chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite = chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<Image>().sprite;
     }
 
     void Refresh(int cost)
@@ -495,17 +514,16 @@ public class ChessShop : MonoBehaviour
                     }
                 } 
 
-                string chessName;
-                if (RandomGetChessByCost(out chessName, data.pool[index].cost))
+                if (RandomGetChessByCost(out chessOnSale[i].chessCount, data.pool[index].cost))
                 {
-                    chessOnSale[i].Item1 = chessName;
-                    chessOnSale[i].Item2 = data.pool[index].cost;
+                    chessOnSale[i].cost = data.pool[index].cost;
+                    chessOnSale[i].inUse = true;
 
                     SellAtChessButton(i);
                 }
                 else
                 {
-                    chessOnSale[i].Item1 = null;
+                    chessOnSale[i].inUse = false;
                 }
             }
         }
@@ -514,10 +532,10 @@ public class ChessShop : MonoBehaviour
     void BuyChess(int index)
     {
         string chessName = chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite.name;
-        if (AbleToSpendMoney(chessOnSale[index].Item2) && this.GetComponent<ChessControl>().newChess(chesses[chessName].c25d))
+        if (AbleToSpendMoney(chessOnSale[index].cost) && this.GetComponent<ChessControl>().newChess(chesses[chessName].c25d))
         {
-            SpendMoneyDirectly(chessOnSale[index].Item2);
-            chessOnSale[index].Item1 = null;
+            SpendMoneyDirectly(chessOnSale[index].cost);
+            chessOnSale[index].inUse = false;
             chessButtons[index].GetComponent<Image>().enabled = false;
             chessButtons[index].transform.GetChild(0).GetComponent<Image>().enabled = false;
         }
