@@ -18,17 +18,17 @@ public class HexGridLayout : MonoBehaviour
     public bool yReverse;
     public Material material;
 
-    private void OnEnable()
+    private void Awake()
     {
         LayoutGrid();
     }
 
     private void OnValidate()
     {
-        if (Application.isPlaying)
-        {
-            LayoutGrid();
-        }
+        //if (Application.isPlaying)
+        //{
+        //    LayoutGrid();
+        //}
     }
 
     private void LayoutGrid()

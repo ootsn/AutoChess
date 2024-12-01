@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7220158260087334174
+--- !u!1 &8226116610157875795
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,25 +8,27 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3531807767566407295}
-  - component: {fileID: 3869039162688890467}
-  - component: {fileID: 4578028098672866540}
-  - component: {fileID: 6348750770878560302}
-  - component: {fileID: 2099471655020135748}
+  - component: {fileID: 8226116610157875806}
+  - component: {fileID: 8226116610157875807}
+  - component: {fileID: 8226116610157875804}
+  - component: {fileID: 8226116610157875805}
+  - component: {fileID: 8226116610157875794}
+  - component: {fileID: 891627614604529386}
+  - component: {fileID: 2189043180747641126}
   m_Layer: 0
-  m_Name: agent
+  m_Name: wisdel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3531807767566407295
+--- !u!4 &8226116610157875806
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7220158260087334174}
+  m_GameObject: {fileID: 8226116610157875795}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -34,21 +36,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3869039162688890467
+--- !u!33 &8226116610157875807
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7220158260087334174}
+  m_GameObject: {fileID: 8226116610157875795}
   m_Mesh: {fileID: 0}
---- !u!23 &4578028098672866540
+--- !u!23 &8226116610157875804
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7220158260087334174}
+  m_GameObject: {fileID: 8226116610157875795}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -61,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 5629a61d82c737b48bb2ffe009b68b89, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -83,19 +85,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6348750770878560302
+--- !u!114 &8226116610157875805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7220158260087334174}
+  m_GameObject: {fileID: 8226116610157875795}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 0}
+  skeletonDataAsset: {fileID: 11400000, guid: a9db487503014c64092273b7935df039, type: 2}
   initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
@@ -117,23 +119,23 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  _animationName: 
-  loop: 0
+  _animationName: Idle
+  loop: 1
   timeScale: 1
---- !u!61 &2099471655020135748
+--- !u!61 &8226116610157875794
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7220158260087334174}
+  m_GameObject: {fileID: 8226116610157875795}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.04985166, y: 1.657279}
+  m_Offset: {x: -0.049851656, y: 1.6572791}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -144,5 +146,31 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.360306, y: 3.345249}
+  m_Size: {x: 2.3603063, y: 3.3452494}
   m_EdgeRadius: 0
+--- !u!114 &891627614604529386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226116610157875795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ec08edd4884ac4ebc45880fa911737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chessProperty:
+    hp: 200300001405000098080000
+--- !u!114 &2189043180747641126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8226116610157875795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0e60dd9edaf8fa46b773aa10f958c42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

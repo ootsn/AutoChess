@@ -51,10 +51,10 @@ public class HexRender : MonoBehaviour
 
     public void OnValidate()
     {
-        if (m_mesh != null && Application.isPlaying)
-        {
-            DrawMesh();
-        }
+        //if (m_mesh != null && Application.isPlaying)
+        //{
+        //    DrawMesh();
+        //}
     }
 
     public void SetMaterial(Material material)
