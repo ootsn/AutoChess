@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using UnityEditor;
 using System.Linq;
 using System.Collections.ObjectModel;
+using UnityEngine.EventSystems;
 
 public class ChessShop : MonoBehaviour
 {
@@ -30,9 +31,15 @@ public class ChessShop : MonoBehaviour
     [Header("Refresh")]
     public GameObject refreshButton;
     [Header("Chess")]
+    public GameObject chessContainer;
     public GameObject[] chessButtons = new GameObject[] { };
+    [Header("Sell")]
+    public GameObject sellArea;
     [Header("Probability")]
     public TextMeshProUGUI[] probabilities = new TextMeshProUGUI[] { };
+    [Header("EventSystem")]
+    [SerializeField]
+    private EventSystem eventSystem;
     [Header("Json")]
     public TextAsset dataJson;
 
@@ -46,6 +53,7 @@ public class ChessShop : MonoBehaviour
     private Dictionary<string, ChessData> chesses = new Dictionary<string, ChessData>();
     private ChessCommodity[] chessOnSale;
     private ChessPool[] chessPool;
+    private Camera mainCamera;
 
     private readonly string chess2dFolderPath = "Prefabs/Chess_2d";
     private readonly string chess25dFolderPath = "Prefabs/Chess_2.5d";
@@ -263,6 +271,11 @@ public class ChessShop : MonoBehaviour
         }
 
         RefreshProbabilityText();
+
+        mainCamera = Camera.main;
+
+        chessContainer.SetActive(true);
+        sellArea.SetActive(false);
     }
 
     void RefreshProbabilityText()
@@ -358,6 +371,12 @@ public class ChessShop : MonoBehaviour
         costText.GetComponent<TextMeshProUGUI>().text = money.ToString();
     }
 
+    void AddMoneyDirectly(int cost)
+    {
+        money += cost;
+        costText.GetComponent<TextMeshProUGUI>().text = money.ToString();
+    }
+
     IEnumerator FlashRed<T>(T component) where T : Graphic
     {
         Color rawColor = component.color;
@@ -418,7 +437,7 @@ public class ChessShop : MonoBehaviour
         }
         else
         {
-            Debug.LogError("商店内的弈子种数（2d）和棋盘上的弈子种数（2.5d）不同");
+            Debug.LogError("商店内的棋子种数（2d）和棋盘上的棋子种数（2.5d）不同");
         }
     }
 
@@ -555,18 +574,58 @@ public class ChessShop : MonoBehaviour
         }
     }
 
-    [MenuItem("test/draePrize")]
-    public static void test()
+    public bool Sell(GameObject gameObject, int cost)
     {
-        
-    }
-
-    public static void PrintDictionary(Dictionary<int, string> dict, string name)
-    {
-        print($"{name}:");
-        foreach (var kvp in dict)
+        // 创建一个 PointerEventData 来保存鼠标点击数据
+        PointerEventData pointerEventData = new PointerEventData(eventSystem)
         {
-            print($"  {kvp.Key}: {kvp.Value}");
+            position = Input.mousePosition
+        };
+
+        // 创建一个 RaycastResult 列表，保存所有检测到的 UI 元素
+        var results = new System.Collections.Generic.List<RaycastResult>();
+
+        // 检测所有的 UI 元素
+        eventSystem.RaycastAll(pointerEventData, results);
+
+        if (results.Count > 0 && results[0].gameObject == sellArea)
+        {
+            AddMoneyDirectly(cost);
+            Destroy(gameObject);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
+
+    public void DisplayPurchaseInterface()
+    {
+        chessContainer.SetActive(true);
+        sellArea.SetActive(false);
+    }
+
+    public void DisplaySellingInterface(int cost)
+    {
+        chessContainer.SetActive(false);
+        sellArea.GetComponent<Text>().text = string.Format("出售以获得{0}金币", cost);
+        sellArea.SetActive(true);
+    }
+
+    //测试用
+    //[MenuItem("test/draePrize")]
+    //public static void test()
+    //{
+
+    //}
+
+    //public static void PrintDictionary(Dictionary<int, string> dict, string name)
+    //{
+    //    print($"{name}:");
+    //    foreach (var kvp in dict)
+    //    {
+    //        print($"  {kvp.Key}: {kvp.Value}");
+    //    }
+    //}
 }

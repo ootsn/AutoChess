@@ -58,7 +58,8 @@ public class ChessControl : MonoBehaviour
             {
                 GameObject chess = Instantiate(chess_) as GameObject;
                 chess.transform.position = reserveSeatCoordinate[i];
-                chess.GetComponent<ChessMove>().SetController(this.GetComponent<ChessControl>());
+                chess.GetComponent<ChessMove>().SetController(this);
+                chess.GetComponent<ChessMove>().SetShop(this.GetComponent<ChessShop>());
                 chess.GetComponent<ChessMove>().SetPosIndex(i);
                 reserveSeatAvailable[i] = false;
                 return true;
