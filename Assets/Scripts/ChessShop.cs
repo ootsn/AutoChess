@@ -31,6 +31,8 @@ public class ChessShop : MonoBehaviour
     public GameObject refreshButton;
     [Header("Chess")]
     public GameObject[] chessButtons = new GameObject[] { };
+    [Header("Probability")]
+    public TextMeshProUGUI[] probabilities = new TextMeshProUGUI[] { };
     [Header("Json")]
     public TextAsset dataJson;
 
@@ -259,6 +261,16 @@ public class ChessShop : MonoBehaviour
         {
             ClearChessButton(i);
         }
+
+        RefreshProbabilityText();
+    }
+
+    void RefreshProbabilityText()
+    {
+        for (int i = 0; i < probabilities.Length; i++)
+        {
+            probabilities[i].text = data.probability[level][i].ToString("0.##%");
+        }
     }
 
     void BuyEXPPoints(int deltaEXP, int cost)
@@ -276,6 +288,8 @@ public class ChessShop : MonoBehaviour
         {
             currEXP = currEXP - data.exp[level];
             level++;
+
+            RefreshProbabilityText();
         }
         levelText.GetComponent<TextMeshProUGUI>().text = String.Format("LEVEL {0}", level);
         if (level < maxLevel)
