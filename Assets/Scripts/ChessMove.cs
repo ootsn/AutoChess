@@ -9,16 +9,16 @@ public class ChessMove : MonoBehaviour
 
     private bool isDragging = false;
     private Vector3 dragOrigin; // 鼠标按下时的物体位置
-    private Vector3 offset; // 鼠标按下时的鼠标位置与物体位置的偏移
     private bool inHexGrid = false;
     private int posIndex;
     private ChessControl controller;
     private ChessShop shop;
+    private Camera mainCamera;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        mainCamera = shop.mainCamera;
     }
 
     // Update is called once per frame
@@ -49,7 +49,8 @@ public class ChessMove : MonoBehaviour
     {
         isDragging = true;
 
-        controller.hexGrid.SetActive(true);
+        //controller.hexGrid.SetActive(true);
+        controller.hexGrid.ActivateMyHexGrid();
 
         dragOrigin = transform.position;
 
@@ -63,13 +64,13 @@ public class ChessMove : MonoBehaviour
         {
             // 获取鼠标在世界空间中的位置
             Vector3 mousePosition = Input.mousePosition;
-            //Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+            //Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
+            Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
             //RaycastHit hit;
             //if (Physics.Raycast(ray, out hit))
             //{
-            //    //Debug.DrawLine(Camera.main.transform.position, hit.point, Color.magenta);
+            //    //Debug.DrawLine(mainCamera.transform.position, hit.point, Color.magenta);
             //    this.gameObject.transform.position = hit.point;
             //    //Debug.DrawRay(ray.origin, ray.direction);
             //}
@@ -111,7 +112,7 @@ public class ChessMove : MonoBehaviour
             if (a != 0 && b != 0)
             {
                 Vector3 pos = a / b * lineDir + linePoint;
-                Debug.DrawLine(pos, new Vector3(pos.x, pos.y + 30, pos.z), Color.blue);
+                //Debug.DrawLine(pos, new Vector3(pos.x, pos.y + 30, pos.z), Color.blue);
 
                 float checkerboardScaleX = controller.checkerboard.transform.localScale.x;
                 float checkerboardScaleZ = controller.checkerboard.transform.localScale.z;
@@ -130,13 +131,13 @@ public class ChessMove : MonoBehaviour
         }
     }
 
-    private float GetNearestCoordinate(Vector3 pos, List<Vector3> positions, out Vector3 result, out int posIndex)
+    private float GetNearestCoordinate(Vector3 pos, Vector3[] positions, out Vector3 result, out int posIndex)
     {
         result = positions[0];
         float distance = Vector3.Distance(pos, result);
 
         posIndex = 0;
-        for (int i = 1; i < positions.Count; i++)
+        for (int i = 1; i < positions.Length; i++)
         {
             float tempDist = Vector3.Distance(pos, positions[i]);
             if (tempDist < distance)
@@ -190,7 +191,8 @@ public class ChessMove : MonoBehaviour
         }
 
         isDragging = false;
-        controller.hexGrid.SetActive(false);
+        //controller.hexGrid.SetActive(false);
+        controller.hexGrid.DeactivateMyHexGrid();
 
         shop.DisplayPurchaseInterface();
     }

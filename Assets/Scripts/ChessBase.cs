@@ -1,7 +1,8 @@
 using System;
+using UnityEngine;
 
 [Serializable]
-public class ChessProperty
+public class ChessProperty : MonoBehaviour
 {
     public int cost;
     public int[] hp;

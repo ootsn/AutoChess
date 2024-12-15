@@ -135,7 +135,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.049851656, y: 1.6572791}
+  m_Offset: {x: -0.049851656, y: 1.537256}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -146,7 +146,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.3603063, y: 3.3452494}
+  m_Size: {x: 2.3603063, y: 3.585295}
   m_EdgeRadius: 0
 --- !u!114 &891627614604529386
 MonoBehaviour:
@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chessProperty:
+    cost: 0
     hp: 200300001405000098080000
 --- !u!114 &2189043180747641126
 MonoBehaviour:

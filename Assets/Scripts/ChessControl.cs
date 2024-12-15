@@ -6,51 +6,53 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public struct ChessPosOnRect
+{
+    public GameObject chess;
+    public Vector2Int hexPos;
+}
+
 public class ChessControl : MonoBehaviour
 {
-    public GameObject hexGrid;
+    public HexGridLayout hexGrid;
     public GameObject reserveSeat;
     public GameObject checkerboard;
 
     public bool[] hexGridAvailable { get; private set; }
     public bool[] reserveSeatAvailable { get; private set; }
-    public List<Vector3> hexGridCoordinate { get; private set; }
-    public List<Vector3> reserveSeatCoordinate { get; private set; }
+    public Vector3[] hexGridCoordinate { get; private set; }
+    public Vector3[] reserveSeatCoordinate { get; private set; }
+
+    
 
     // Start is called before the first frame update
     void Start()
     {
         GetPlaceCoordinate();
 
-        hexGrid.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //hexGrid.SetActive(false);
     }
 
     private void GetPlaceCoordinate()
     {
-        hexGridCoordinate = new List<Vector3>();
-        hexGridAvailable = new bool[hexGrid.transform.childCount];
-        for (int i = 0; i < hexGrid.transform.childCount; i++)
+        hexGridCoordinate = hexGrid.GetMyHexGridPositions();
+        hexGridAvailable = new bool[hexGridCoordinate.Length];
+        for (int i = 0; i < hexGridAvailable.Length; i++)
         {
-            hexGridCoordinate.Add(hexGrid.transform.GetChild(i).position);
+            //hexGridCoordinate.Add(hexGrid.transform.GetChild(i).position);
             hexGridAvailable[i] = true;
         }
 
-        reserveSeatCoordinate = new List<Vector3>();
+        reserveSeatCoordinate = new Vector3[reserveSeat.transform.childCount];
         reserveSeatAvailable = new bool[reserveSeat.transform.childCount];
         for (int i = 0; i < reserveSeat.transform.childCount; i++)
         {
-            reserveSeatCoordinate.Add(reserveSeat.transform.GetChild(i).position);
+            reserveSeatCoordinate[i] = reserveSeat.transform.GetChild(i).position;
             reserveSeatAvailable[i] = true;
         }
     }
 
-    public bool newChess(GameObject chess_)
+    public bool NewChess(GameObject chess_)
     {
         for (int i = 0; i < reserveSeatAvailable.Length; i++)
         {
@@ -66,5 +68,10 @@ public class ChessControl : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void PutOpponent()
+    {
+        throw new NotImplementedException();
     }
 }

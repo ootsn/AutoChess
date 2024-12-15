@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TMPro;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 using Newtonsoft.Json;
@@ -16,6 +15,8 @@ using UnityEngine.EventSystems;
 
 public class ChessShop : MonoBehaviour
 {
+    [Header("MainCamera")]
+    public Camera mainCamera;
     [Header("Cost")]
     public int money; //暂时放这，调试用。后期看看要不要移到private
     public GameObject costText;
@@ -44,7 +45,7 @@ public class ChessShop : MonoBehaviour
     public TextAsset dataJson;
 
     private int level;
-    private int currEXP;  
+    private int currEXP;
     private int numOfChess;
     private int maxLevel;
     private bool isLocked;
@@ -53,7 +54,6 @@ public class ChessShop : MonoBehaviour
     private Dictionary<string, ChessData> chesses = new Dictionary<string, ChessData>();
     private ChessCommodity[] chessOnSale;
     private ChessPool[] chessPool;
-    private Camera mainCamera;
 
     private readonly string chess2dFolderPath = "Prefabs/Chess_2d";
     private readonly string chess25dFolderPath = "Prefabs/Chess_2.5d";
@@ -271,8 +271,6 @@ public class ChessShop : MonoBehaviour
         }
 
         RefreshProbabilityText();
-
-        mainCamera = Camera.main;
 
         chessContainer.SetActive(true);
         sellArea.SetActive(false);
@@ -565,7 +563,7 @@ public class ChessShop : MonoBehaviour
     void BuyChess(int index)
     {
         string chessName = chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite.name;
-        if (AbleToSpendMoney(chessOnSale[index].cost) && this.GetComponent<ChessControl>().newChess(chesses[chessName].c25d))
+        if (AbleToSpendMoney(chessOnSale[index].cost) && this.GetComponent<ChessControl>().NewChess(chesses[chessName].c25d))
         {
             SpendMoneyDirectly(chessOnSale[index].cost);
             chessOnSale[index].inUse = false;
