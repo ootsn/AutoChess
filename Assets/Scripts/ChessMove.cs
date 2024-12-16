@@ -8,9 +8,9 @@ public class ChessMove : MonoBehaviour
     private readonly int a = 10;
 
     private bool isDragging = false;
-    private Vector3 dragOrigin; // 鼠标按下时的物体位置
-    private bool inHexGrid = false;
-    private int posIndex;
+    //private Vector3 dragOrigin; // 鼠标按下时的物体位置
+    //private bool inHexGrid = false;
+    //private int posIndex;
     private ChessControl controller;
     private ChessShop shop;
     private Camera mainCamera;
@@ -27,22 +27,22 @@ public class ChessMove : MonoBehaviour
         
     }
 
-    public void SetPosIndex(int posIndex)
-    {
-        this.posIndex = posIndex;
-    }
+    //public void SetPosIndex(int posIndex)
+    //{
+    //    this.posIndex = posIndex;
+    //}
 
-    void clearLastPosition()
-    {
-        if (inHexGrid)
-        {
-            controller.hexGridAvailable[posIndex] = true;
-        }
-        else
-        {
-            controller.reserveSeatAvailable[posIndex] = true;
-        }
-    }
+    //void clearLastPosition()
+    //{
+    //    if (inHexGrid)
+    //    {
+    //        controller.hexGridAvailable[posIndex] = true;
+    //    }
+    //    else
+    //    {
+    //        controller.reserveSeatAvailable[posIndex] = true;
+    //    }
+    //}
 
     // 当鼠标按下时调用
     void OnMouseDown()
@@ -52,7 +52,7 @@ public class ChessMove : MonoBehaviour
         //controller.hexGrid.SetActive(true);
         controller.hexGrid.ActivateMyHexGrid();
 
-        dragOrigin = transform.position;
+        //dragOrigin = transform.position;
 
         shop.DisplaySellingInterface(a);
     }
@@ -131,15 +131,15 @@ public class ChessMove : MonoBehaviour
         }
     }
 
-    private float GetNearestCoordinate(Vector3 pos, Vector3[] positions, out Vector3 result, out int posIndex)
+    private float GetNearestCoordinate(Vector3 pos, Transform[] positions, out Transform result, out int posIndex)
     {
         result = positions[0];
-        float distance = Vector3.Distance(pos, result);
+        float distance = Vector3.Distance(pos, result.position);
 
         posIndex = 0;
         for (int i = 1; i < positions.Length; i++)
         {
-            float tempDist = Vector3.Distance(pos, positions[i]);
+            float tempDist = Vector3.Distance(pos, positions[i].position);
             if (tempDist < distance)
             {
                 posIndex = i;
@@ -156,38 +156,39 @@ public class ChessMove : MonoBehaviour
     {
         if (!shop.Sell(this.gameObject, a)) 
         { 
-            Vector3 pos1, pos2;
+            Transform transform1, transform2;
             int posIndex1, posIndex2;
-            if (GetNearestCoordinate(transform.position, controller.hexGridCoordinate, out pos1, out posIndex1) < GetNearestCoordinate(transform.position, controller.reserveSeatCoordinate, out pos2, out posIndex2))
+            if (GetNearestCoordinate(transform.position, controller.Hexagons, out transform1, out posIndex1) < GetNearestCoordinate(transform.position, controller.ReserveSeat, out transform2, out posIndex2))
             {
-                if (controller.hexGridAvailable[posIndex1])
+                if (/*controller.hexGridAvailable[posIndex1]*/ controller.isPlaceAvailable(transform1))
                 {
-                    clearLastPosition();
-                    transform.position = pos1;
-                    controller.hexGridAvailable[posIndex1] = false;
-                    inHexGrid = true;
-                    posIndex = posIndex1;
+                    //clearLastPosition();
+                    transform.SetParent(transform1);
+                    //controller.hexGridAvailable[posIndex1] = false;
+                    //inHexGrid = true;
+                    //posIndex = posIndex1;
                 }
                 else
                 {
-                    transform.position = dragOrigin;
+                    ExchangeParent(transform1);
                 }
             }
             else
             {
-                if (controller.reserveSeatAvailable[posIndex2])
+                if (/*controller.reserveSeatAvailable[posIndex2]*/ controller.isPlaceAvailable(transform2))
                 {
-                    clearLastPosition();
-                    transform.position = pos2;
-                    controller.reserveSeatAvailable[posIndex2] = false;
-                    inHexGrid = false;
-                    posIndex = posIndex2;
+                    //clearLastPosition();
+                    transform.SetParent(transform2);
+                    //controller.reserveSeatAvailable[posIndex2] = false;
+                    //inHexGrid = false;
+                    //posIndex = posIndex2;
                 }
                 else
                 {
-                    transform.position = dragOrigin;
+                    ExchangeParent(transform2);
                 }
             }
+            transform.localPosition = new Vector3(0f, 0f, 0f);
         }
 
         isDragging = false;
@@ -195,6 +196,16 @@ public class ChessMove : MonoBehaviour
         controller.hexGrid.DeactivateMyHexGrid();
 
         shop.DisplayPurchaseInterface();
+    }
+
+    private void ExchangeParent(Transform objParentTransform)
+    {
+        Transform objTransform = objParentTransform.GetChild(0);
+        Transform parentTransform = transform.parent;
+
+        transform.SetParent(objParentTransform);
+        objTransform.SetParent(parentTransform);
+        objTransform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
     public void SetController(ChessControl controller)

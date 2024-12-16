@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class HexPosition : MonoBehaviour
 {
-    public int q;
-    public int r;
-    
+    public int q { get; private set; }
+    public int r { get; private set; }
+
     public HexPosition()
     {
         this.q = 0;

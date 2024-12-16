@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,14 +15,18 @@ public class HexGridLayout : MonoBehaviour
     public float outerSize = 1f;
     public float height = 1f;
     public bool isFlatTopped;
+    public bool WhetherYAsRow;
     public bool xReverse;
     public bool yReverse;
     public Material material;
 
     private GameObject opponentHexGrid;
     private GameObject myHexGrid;
-    private List<GameObject> opponentHexes;
-    private List<GameObject> myHexes; 
+    private GameObject[][] hexRect;
+    private int row;
+    private int col;
+
+    private delegate void Func(Transform transform);
 
     private void Awake()
     {
@@ -31,51 +36,107 @@ public class HexGridLayout : MonoBehaviour
 
     private void OnValidate()
     {
-        if (Application.isPlaying && opponentHexes != null && myHexes != null)
+        if (Application.isPlaying && opponentHexGrid != null && myHexGrid != null)
         {
-            foreach (GameObject obj in opponentHexes)
+            for (int i = 0; i < opponentHexGrid.transform.childCount; i++)
             {
-                Destroy(obj);
+                Destroy(opponentHexGrid.transform.GetChild(i).gameObject);
             }
-            opponentHexes.Clear();
-            foreach (GameObject obj in myHexes)
-            { 
-                Destroy(obj);
+            for (int i = 0; i < myHexGrid.transform.childCount; i++)
+            {
+                Destroy(myHexGrid.transform.GetChild(i).gameObject);
             }
-            myHexes.Clear();
             LayoutGrid();
+        }
+    }
+
+    private void ApplyFuncToHexagon(Func func, Transform parent)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            func(parent.GetChild(i));
         }
     }
 
     public void ActivateMyHexGrid()
     {
-        myHexGrid.SetActive(true);
+        Func func = (Transform transform) =>
+        {
+            transform.GetComponent<MeshRenderer>().enabled = true;
+        };
+        ApplyFuncToHexagon(func, myHexGrid.transform);
     }
 
     public void DeactivateMyHexGrid()
     {
-        myHexGrid.SetActive(false);
+        Func func = (Transform transform) =>
+        {
+            transform.GetComponent<MeshRenderer>().enabled = false;
+        };
+        ApplyFuncToHexagon(func, myHexGrid.transform);
+    }
+
+    public void ActivateOpponentHexGrid()
+    {
+        Func func = (Transform transform) =>
+        {
+            transform.GetComponent<MeshRenderer>().enabled = true;
+        };
+        ApplyFuncToHexagon(func, opponentHexGrid.transform);
+    }
+
+    public void DeactivateOpponentHexGrid()
+    {
+        Func func = (Transform transform) =>
+        {
+            transform.GetComponent<MeshRenderer>().enabled = false;
+        };
+        ApplyFuncToHexagon(func, opponentHexGrid.transform);
     }
 
     public Vector3[] GetMyHexGridPositions()
     {
         Vector3[] myHexPositions;
-        GetGameObjectPositions(myHexes, out myHexPositions);
+        GetGameObjectPositions(myHexGrid.transform, out myHexPositions);
         return myHexPositions;
+    }
+
+    public Transform[] GetMyHexGridTransform()
+    {
+        Transform[] myHexGridTransform;
+        GetGameObjectTransform(myHexGrid.transform, out myHexGridTransform);
+        return myHexGridTransform;
+    }
+
+    public Transform[] GetOpponentHexGridTransform()
+    {
+        Transform[] opponentHexGridTransform;
+        GetGameObjectTransform(opponentHexGrid.transform, out opponentHexGridTransform);
+        return opponentHexGridTransform;
     }
 
     public void GetOpponentHexGridPositions(out Vector3[] opponentHexPositions)
     {
-        GetGameObjectPositions(opponentHexes, out opponentHexPositions);
+        GetGameObjectPositions(opponentHexGrid.transform, out opponentHexPositions);
     }
 
-    private void GetGameObjectPositions(List<GameObject> objects, out Vector3[] positions)
+    private void GetGameObjectPositions(Transform parent, out Vector3[] positions)
     {
-        int len = objects.Count;
+        int len = parent.childCount;
         positions = new Vector3[len];
-        for (int i = 0; i < len;i++)
+        for (int i = 0; i < len; i++)
         {
-            positions[i] = objects[i].transform.position;
+            positions[i] = parent.GetChild(i).transform.position;
+        }
+    }
+
+    private void GetGameObjectTransform(Transform parent, out Transform[] transform)
+    {
+        int len = parent.childCount;
+        transform = new Transform[len];
+        for (int i = 0; i < len; i++)
+        {
+            transform[i] = parent.GetChild(i).transform;
         }
     }
 
@@ -83,13 +144,25 @@ public class HexGridLayout : MonoBehaviour
     {
         opponentHexGrid = new GameObject("OpponentHexGrid");
         opponentHexGrid.transform.SetParent(transform, false);
-        opponentHexGrid.SetActive(false);
         myHexGrid = new GameObject("MyHexGrid");
         myHexGrid.transform.SetParent(transform, false);
-        myHexGrid.SetActive(false);
 
-        opponentHexes = new List<GameObject>();
-        myHexes = new List<GameObject>();
+        if (WhetherYAsRow)
+        {
+            row = gridSize.y;
+            col = gridSize.x;
+        }
+        else
+        {
+            row = gridSize.x;
+            col = gridSize.y;
+        }
+
+        hexRect = new GameObject[row][];
+        for (int i = 0; i < row; i++)
+        {
+            hexRect[i] = new GameObject[col];
+        }
     }
 
     private void LayoutGrid()
@@ -113,26 +186,25 @@ public class HexGridLayout : MonoBehaviour
         //    }
         //}
 
-        for (int x = 0; x < gridSize.x; x++)
+        int q, r;
+        for (int y = 0; y < col; y++)
         {
-            int y = 0;
-            for (; y < gridSize.y / 2; y++)
+            int x = 0;
+            for (; x < row; x++)
             {
-                opponentHexes.Add(NewHexTile(x, y, opponentHexGrid.transform));
-            }
-            for (; y < gridSize.y; y++)
-            {
-                myHexes.Add(NewHexTile(x, y, myHexGrid.transform));
+                Transform parent = (x < row / 2 ? opponentHexGrid.transform : myHexGrid.transform);
+                HexPosition.Rect2Hex(x, y, out q, out r);
+                hexRect[x][y] = NewHexTile(x, y, q, r, parent);
             }
         }
     }
 
-    private GameObject NewHexTile(int x, int y, Transform parent)
+    private GameObject NewHexTile(int x, int y, int q, int r, Transform parent)
     {
-        GameObject tile = new GameObject($"Hex {y},{x}", new Type[] { typeof(HexRender), typeof(HexPosition) });
+        GameObject tile = new GameObject($"Hex {x},{y}", new Type[] { typeof(HexRender), typeof(HexPosition) });
 
         tile.transform.SetParent(parent);
-        tile.transform.localPosition = GetPositionForHexFromCoordinate(new Vector2Int(x, y));
+        tile.transform.localPosition = GetPositionForHexFromCoordinate(WhetherYAsRow ? new Vector2Int(y, x) : new Vector2Int(x, y));
         tile.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
 
         HexRender hexRender = tile.GetComponent<HexRender>();
@@ -143,8 +215,6 @@ public class HexGridLayout : MonoBehaviour
         hexRender.SetMaterial(material);
         hexRender.DrawMesh();
 
-        int q, r;
-        HexPosition.Rect2Hex(y, x, out q, out r);
         tile.GetComponent<HexPosition>().SetPosition(q, r);
 
         return tile;
@@ -194,5 +264,17 @@ public class HexGridLayout : MonoBehaviour
         }
 
         return new Vector3(xPosition, 0, -yPosition);
+    }
+
+    public void Reflect(int x, int y, out int newX, out int newY)
+    {
+        newX = row - x - 1;
+        newY = col - y - 1;
+    }
+
+    public void SetChess(Transform chess, int x, int y)
+    {
+        chess.SetParent(hexRect[x][y].transform);
+        chess.localPosition = new Vector3(0f, 0f, 0f);
     }
 }

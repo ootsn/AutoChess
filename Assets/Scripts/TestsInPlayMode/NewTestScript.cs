@@ -24,39 +24,8 @@ public class NewTestScript
     }
 
     [Test]
-    public void Inherit()
-    {
-        A a = new B();
-        a.print1();
-        a.print2();
-    }
-
-    [Test]
     public void Test1()
     {
-        GameObject player1 = GameObject.Find("Player (1)");
-        GameObject player2 = GameObject.Find("Player (2)");
-        Debug.Log(player1);
-    }
-}
 
-public class A
-{
-    public virtual void print1()
-    {
-        Debug.Log("A1");
-    }
-
-    public virtual void print2()
-    {
-        Debug.Log("A2");
-    }
-}
-
-public class B : A
-{
-    public override void print1()
-    {
-        Debug.Log("B1");
     }
 }

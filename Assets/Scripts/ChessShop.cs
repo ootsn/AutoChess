@@ -46,7 +46,7 @@ public class ChessShop : MonoBehaviour
 
     private int level;
     private int currEXP;
-    private int numOfChess;
+    //private int numOfChess;
     private int maxLevel;
     private bool isLocked;
     private bool notFlashRed;
@@ -238,7 +238,7 @@ public class ChessShop : MonoBehaviour
         costText.GetComponent<TextMeshProUGUI>().text = money.ToString();
 
         level = 2;
-        numOfChess = 1;
+        //numOfChess = 1;
         currEXP = 0;
         maxLevel = data.exp.Length;
 
