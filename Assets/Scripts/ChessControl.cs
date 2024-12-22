@@ -21,10 +21,10 @@ public class ChessControl : MonoBehaviour
 
     //public bool[] hexGridAvailable { get; private set; }
     //public bool[] reserveSeatAvailable { get; private set; }
-    public Transform[] Hexagons { get; private set; }
+    public Transform[] myHexagons { get; private set; }
     public Transform[] ReserveSeat { get; private set; }
 
-    private Dictionary<Transform, Transform> opponentHexGridInfo;
+    private Dictionary<Transform, Transform> opponentHexGridInfo; //第一个是棋子，第二个是位置
 
     // Start is called before the first frame update
     void Start()
@@ -39,7 +39,7 @@ public class ChessControl : MonoBehaviour
 
     private void GetPlaceCoordinate()
     {
-        Hexagons = hexGrid.GetMyHexGridTransform();
+        myHexagons = hexGrid.GetMyHexGridTransform();
         //hexGridAvailable = new bool[hexGridCoordinate.Length];
         //for (int i = 0; i < hexGridAvailable.Length; i++)
         //{
@@ -56,16 +56,11 @@ public class ChessControl : MonoBehaviour
         }
     }
 
-    public bool isPlaceAvailable(Transform placeTransform)
-    {
-        return placeTransform.childCount == 0;
-    }
-
     public bool NewChess(GameObject chess_)
     {
         for (int i = 0; i < ReserveSeat.Length; i++)
         {
-            if (/*reserveSeatAvailable[i]*/ isPlaceAvailable(ReserveSeat[i]))
+            if (/*reserveSeatAvailable[i]*/ HexGridLayout.isHexPositionAvailable(ReserveSeat[i]))
             {
                 GameObject chess = Instantiate(chess_) as GameObject;
                 chess.transform.SetParent(ReserveSeat[i]);
@@ -82,18 +77,15 @@ public class ChessControl : MonoBehaviour
 
     public void PutOpponent(Transform[] opponentHexagons)
     {
-        int x, y, newX, newY;
         foreach (var place in opponentHexagons)
         {
-            if (!isPlaceAvailable(place.transform))
+            if (!HexGridLayout.isHexPositionAvailable(place.transform))
             {
                 Transform chess = place.GetChild(0);
                 opponentHexGridInfo.Add(chess, place);
-                HexPosition hexPos = place.GetComponent<HexPosition>();
-                HexPosition.Hex2Rect(hexPos.q, hexPos.r, out x, out y);
-                hexGrid.Reflect(x, y, out newX, out newY);
-                print(string.Format("({0}, {1}) => ({2}, {3})", x, y, newX, newY));
-                hexGrid.SetChess(chess, newX, newY);
+                Position pos = place.GetComponent<Position>();
+                RectPosition rectPos = hexGrid.Reflect(pos.rect);
+                hexGrid.SetChess(chess, rectPos);
             }
         }
     }
@@ -107,4 +99,45 @@ public class ChessControl : MonoBehaviour
         }
         opponentHexGridInfo.Clear();
     }
+
+    public (Position opponentPlace, Dictionary<Position, Position> route) FindNearestOpponentPlace(Position myChessPlacePos)
+    {
+        Position opponentPlace = null;
+        Dictionary<Position, Position> route = null;
+        int minDist = int.MaxValue;
+        foreach (var pair in opponentHexGridInfo)
+        {
+            Position opponentPlaceHexPos = pair.Value.GetComponent<Position>();
+            int dist = hexGrid.AStart(opponentPlaceHexPos, myChessPlacePos, out route).Count;
+            if (dist < minDist)
+            {
+                opponentPlace = opponentPlaceHexPos;
+                minDist = dist;
+            }
+        }
+        return (opponentPlace, route);
+    }
+
+    public (Position myPlace, Dictionary<Position, Position> route) FindNearestMyPlace(Position opponentChessPlacePos)
+    {
+        Position myPlace = null;
+        Dictionary<Position, Position> route = null;
+        int minDist = int.MaxValue;
+        foreach (var place in myHexagons)
+        {
+            if (!HexGridLayout.isHexPositionAvailable(place))
+            {
+                Position myPlaceHexPos = place.GetComponent<Position>();
+                int dist = hexGrid.AStart(myPlaceHexPos, opponentChessPlacePos, out route).Count;
+                if (dist < minDist)
+                {
+                    myPlace = myPlaceHexPos;
+                    minDist = dist;
+                }
+            }
+        }
+        return (myPlace, route);
+    }
+
+
 }

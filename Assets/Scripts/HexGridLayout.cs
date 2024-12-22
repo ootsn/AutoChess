@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -186,25 +188,35 @@ public class HexGridLayout : MonoBehaviour
         //    }
         //}
 
-        int q, r;
         for (int y = 0; y < col; y++)
         {
             int x = 0;
             for (; x < row; x++)
             {
+                RectPosition rectPos = new RectPosition(x, y);
+                HexPosition hexPos = Position.Rect2Hex(rectPos);
                 Transform parent = (x < row / 2 ? opponentHexGrid.transform : myHexGrid.transform);
-                HexPosition.Rect2Hex(x, y, out q, out r);
-                hexRect[x][y] = NewHexTile(x, y, q, r, parent);
+                hexRect[x][y] = NewHexTile(rectPos, hexPos, parent);
             }
         }
     }
 
-    private GameObject NewHexTile(int x, int y, int q, int r, Transform parent)
+    public static string GetHexName(RectPosition rectPosition)
     {
-        GameObject tile = new GameObject($"Hex {x},{y}", new Type[] { typeof(HexRender), typeof(HexPosition) });
+        return $"Hex {rectPosition.x},{rectPosition.y}";
+    }
+
+    public static string GetHexName(HexPosition hexPosition)
+    {
+        return GetHexName(Position.Hex2Rect(hexPosition));
+    }
+
+    private GameObject NewHexTile(RectPosition rectPos, HexPosition hexPos, Transform parent)
+    {
+        GameObject tile = new GameObject(GetHexName(rectPos), new Type[] { typeof(HexRender), typeof(Position) });
 
         tile.transform.SetParent(parent);
-        tile.transform.localPosition = GetPositionForHexFromCoordinate(WhetherYAsRow ? new Vector2Int(y, x) : new Vector2Int(x, y));
+        tile.transform.localPosition = GetPositionForHexFromCoordinate(WhetherYAsRow ? new Vector2Int(rectPos.y, rectPos.x) : new Vector2Int(rectPos.x, rectPos.y));
         tile.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
 
         HexRender hexRender = tile.GetComponent<HexRender>();
@@ -215,7 +227,7 @@ public class HexGridLayout : MonoBehaviour
         hexRender.SetMaterial(material);
         hexRender.DrawMesh();
 
-        tile.GetComponent<HexPosition>().SetPosition(q, r);
+        tile.GetComponent<Position>().SetPosition(hexPos);
 
         return tile;
     }
@@ -266,15 +278,100 @@ public class HexGridLayout : MonoBehaviour
         return new Vector3(xPosition, 0, -yPosition);
     }
 
-    public void Reflect(int x, int y, out int newX, out int newY)
+    //public void Reflect(int x, int y, out int newX, out int newY)
+    //{
+    //    newX = row - x - 1;
+    //    newY = col - y - 1;
+    //}
+
+    public RectPosition Reflect(RectPosition rectPos)
     {
-        newX = row - x - 1;
-        newY = col - y - 1;
+        return new RectPosition(row - rectPos.x - 1, col - rectPos.y - 1);
     }
 
-    public void SetChess(Transform chess, int x, int y)
+    //public void SetChess(Transform chess, int x, int y)
+    //{
+    //    chess.SetParent(hexRect[x][y].transform);
+    //    chess.localPosition = new Vector3(0f, 0f, 0f);
+    //}
+
+    public void SetChess(Transform chess, RectPosition rectPos)
     {
-        chess.SetParent(hexRect[x][y].transform);
+        chess.SetParent(hexRect[rectPos.x][rectPos.y].transform);
         chess.localPosition = new Vector3(0f, 0f, 0f);
     }
+
+    private bool RectIndexValid(int x, int y)
+    {
+        return x >= 0 && y >= 0 && x < row && y < col;
+    }
+
+    private bool RectIndexValid(RectPosition rectPos)
+    {
+        return rectPos.x >= 0 && rectPos.y >= 0 && rectPos.x < row && rectPos.y < col;
+    }
+
+    public static bool isHexPositionAvailable(Transform placeTransform)
+    {
+        return placeTransform.childCount == 0;
+    }
+
+    delegate bool WhetherMeetCondition(Transform transform);
+
+    private class AStartHexPosition
+    {
+        public Position HexPosition;
+        public int Cost;
+    }
+
+    private class AStartHexPositionComparer : IComparer<AStartHexPosition>
+    {
+        public int Compare(AStartHexPosition x, AStartHexPosition y)
+        {
+            return x.Cost.CompareTo(y.Cost);
+        }
+    }
+
+    private int GetCost(Position end)
+    {
+        return isHexPositionAvailable(end.transform) ? 1 : 1000000;
+    }
+
+    public Dictionary<Position, Position> AStart(Position start, Position end, out Dictionary<Position, Position> came_from)
+    {
+        const int Capacity = 20;
+        var frontier = new PriorityQueue<AStartHexPosition>(Capacity, new AStartHexPositionComparer());
+        frontier.Push(new AStartHexPosition { HexPosition = start, Cost = 0 });
+        came_from = new Dictionary<Position, Position>();
+        var cost_so_far = new Dictionary<Position, int>();
+        came_from[start] = null;
+        cost_so_far[start] = 0;
+
+        while (frontier.Count > 0)
+        {
+            var current = frontier.Top.HexPosition;
+            frontier.Pop();
+
+            if (current == end)
+            {
+                break;
+            }
+
+            foreach (var next in Position.GetNeighbors(current, this))
+            {
+                var new_cost = cost_so_far[current] + GetCost(next);
+                if (!cost_so_far.TryGetValue(next, out int next_cost) || new_cost < next_cost)
+                {
+                    cost_so_far[next] = new_cost;
+                    var priority = new_cost + Position.Distance(end, current);
+                    frontier.Push(new AStartHexPosition { HexPosition = next, Cost = priority });
+                    came_from[next] = current;
+                }
+            }
+        }
+
+        return came_from;
+    }
+
+
 }

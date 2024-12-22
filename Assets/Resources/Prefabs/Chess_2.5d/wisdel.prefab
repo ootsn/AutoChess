@@ -160,9 +160,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56ec08edd4884ac4ebc45880fa911737, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chessProperty:
-    cost: 0
-    hp: 200300001405000098080000
+  cost: 
+  hp: 
+  atk: 
+  def: 
+  magicResistance: 
+  epDamageResistance: 
+  epResistance: 
+  attackRange: 5
+  attackSpeed: 0
+  attackTime: 0
+  moveSpeed: 1
+  tauntLevel: 0
+  evasionPhysical: 0
+  evasionMagical: 0
+  damageHitratePhysical: 0
+  damageHitrateMagical: 0
+  hpRecoverySpeed: 0
+  hpPercentRecoverySpeed: 0
+  massLevel: 0
+  forceLevel: 0
+  skillRecoveryBonus: 0
+  abnormalResistance: 00000000000000
+  abnormalResistanceRatio:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
 --- !u!114 &2189043180747641126
 MonoBehaviour:
   m_ObjectHideFlags: 0
