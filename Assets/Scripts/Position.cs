@@ -38,20 +38,6 @@ public class Position : MonoBehaviour
         hex = Rect2Hex(rect);
     }
 
-    public static IEnumerable<Position> GetNeighbors(Position position, HexGridLayout parent)
-    {
-        for (int i = 0; i < HexPosition.Direction.Length; i++)
-        {
-            //result[i] = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
-            HexPosition hexPosition = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
-            Transform neighbor = parent.transform.Find(HexGridLayout.GetHexName(hexPosition));
-            if (neighbor != null)
-            {
-                yield return neighbor.GetComponent<Position>();
-            }
-        }
-    }
-
     private static HexPosition Subtract(HexPosition a, HexPosition b)
     {
         return new HexPosition(a.q - b.q, a.r - b.r);

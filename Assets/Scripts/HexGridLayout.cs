@@ -306,7 +306,7 @@ public class HexGridLayout : MonoBehaviour
         return x >= 0 && y >= 0 && x < row && y < col;
     }
 
-    private bool RectIndexValid(RectPosition rectPos)
+    private bool RectPositionValid(RectPosition rectPos)
     {
         return rectPos.x >= 0 && rectPos.y >= 0 && rectPos.x < row && rectPos.y < col;
     }
@@ -318,15 +318,15 @@ public class HexGridLayout : MonoBehaviour
 
     delegate bool WhetherMeetCondition(Transform transform);
 
-    private class AStartHexPosition
+    private class AStarHexPosition
     {
         public Position HexPosition;
         public int Cost;
     }
 
-    private class AStartHexPositionComparer : IComparer<AStartHexPosition>
+    private class AStarHexPositionComparer : IComparer<AStarHexPosition>
     {
-        public int Compare(AStartHexPosition x, AStartHexPosition y)
+        public int Compare(AStarHexPosition x, AStarHexPosition y)
         {
             return x.Cost.CompareTo(y.Cost);
         }
@@ -337,11 +337,26 @@ public class HexGridLayout : MonoBehaviour
         return isHexPositionAvailable(end.transform) ? 1 : 1000000;
     }
 
-    public Dictionary<Position, Position> AStart(Position start, Position end, out Dictionary<Position, Position> came_from)
+    private IEnumerable<Position> GetNeighbors(Position position, HexGridLayout parent)
+    {
+        for (int i = 0; i < HexPosition.Direction.Length; i++)
+        {
+            //result[i] = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
+            HexPosition hexPosition = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
+            RectPosition rectPosition = Position.Hex2Rect(hexPosition);
+            if (RectPositionValid(rectPosition))
+            {
+                Transform neighbor = hexRect[rectPosition.x][rectPosition.y].transform;
+                yield return neighbor.GetComponent<Position>();
+            }
+        }
+    }
+
+    public int AStar(Position start, Position end, out Dictionary<Position, Position> came_from)
     {
         const int Capacity = 20;
-        var frontier = new PriorityQueue<AStartHexPosition>(Capacity, new AStartHexPositionComparer());
-        frontier.Push(new AStartHexPosition { HexPosition = start, Cost = 0 });
+        var frontier = new PriorityQueue<AStarHexPosition>(Capacity, new AStarHexPositionComparer());
+        frontier.Push(new AStarHexPosition { HexPosition = start, Cost = 0 });
         came_from = new Dictionary<Position, Position>();
         var cost_so_far = new Dictionary<Position, int>();
         came_from[start] = null;
@@ -357,21 +372,19 @@ public class HexGridLayout : MonoBehaviour
                 break;
             }
 
-            foreach (var next in Position.GetNeighbors(current, this))
+            foreach (var next in GetNeighbors(current, this))
             {
                 var new_cost = cost_so_far[current] + GetCost(next);
                 if (!cost_so_far.TryGetValue(next, out int next_cost) || new_cost < next_cost)
                 {
                     cost_so_far[next] = new_cost;
                     var priority = new_cost + Position.Distance(end, current);
-                    frontier.Push(new AStartHexPosition { HexPosition = next, Cost = priority });
+                    frontier.Push(new AStarHexPosition { HexPosition = next, Cost = priority });
                     came_from[next] = current;
                 }
             }
         }
 
-        return came_from;
+        return cost_so_far[end];
     }
-
-
 }

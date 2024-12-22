@@ -104,15 +104,17 @@ public class ChessControl : MonoBehaviour
     {
         Position opponentPlace = null;
         Dictionary<Position, Position> route = null;
+        Dictionary<Position, Position> tempRoute = null;
         int minDist = int.MaxValue;
         foreach (var pair in opponentHexGridInfo)
         {
-            Position opponentPlaceHexPos = pair.Value.GetComponent<Position>();
-            int dist = hexGrid.AStart(opponentPlaceHexPos, myChessPlacePos, out route).Count;
+            Position opponentPlaceHexPos = pair.Key.parent.GetComponent<Position>();
+            int dist = hexGrid.AStar(myChessPlacePos, opponentPlaceHexPos, out tempRoute);
             if (dist < minDist)
             {
                 opponentPlace = opponentPlaceHexPos;
                 minDist = dist;
+                route = tempRoute;
             }
         }
         return (opponentPlace, route);
@@ -128,7 +130,7 @@ public class ChessControl : MonoBehaviour
             if (!HexGridLayout.isHexPositionAvailable(place))
             {
                 Position myPlaceHexPos = place.GetComponent<Position>();
-                int dist = hexGrid.AStart(myPlaceHexPos, opponentChessPlacePos, out route).Count;
+                int dist = hexGrid.AStar(opponentChessPlacePos, myPlaceHexPos, out route);
                 if (dist < minDist)
                 {
                     myPlace = myPlaceHexPos;
@@ -138,6 +140,4 @@ public class ChessControl : MonoBehaviour
         }
         return (myPlace, route);
     }
-
-
 }
