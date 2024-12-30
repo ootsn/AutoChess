@@ -104,7 +104,7 @@ public class BattleTest : MonoBehaviour
     private void DrawAStarRoute()
     {
         ChessControl chessControl = transform.parent.GetComponent<ChessControl>();
-        foreach (var place in chessControl.myHexagons.Where(t => !HexGridLayout.isHexPositionAvailable(t)))
+        foreach (var place in chessControl.myHexagons.Where(t => !Position.isPositionAvailable(t)))
         {
             var res = chessControl.FindNearestOpponentPlace(place.GetComponent<Position>());
             if (res.opponentPlace == null)

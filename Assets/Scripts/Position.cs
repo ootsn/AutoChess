@@ -63,6 +63,34 @@ public class Position : MonoBehaviour
         //x = r;
         //y = q + r / 2;
     }
+
+    public static bool isPositionAvailable(Transform placeTransform)
+    {
+        return placeTransform.childCount == 0;
+    }
+
+    public static Transform GetChess(Transform placeTransform)
+    {
+        return placeTransform.GetChild(0);
+    }
+
+    public static string GetChessName(Transform placeTransform)
+    {
+        return GetChess(placeTransform).name;
+    }
+
+    public static bool SetChess(Transform chess, Transform place)
+    {
+        if (isPositionAvailable(place))
+        {
+            chess.SetParent(place);
+            return true;
+        }
+        else
+        { 
+            return false; 
+        }
+    }
 }
 
 public class HexPosition

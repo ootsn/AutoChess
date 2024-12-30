@@ -162,7 +162,7 @@ public class ChessMove : MonoBehaviour
             int posIndex1, posIndex2;
             if (GetNearestCoordinate(transform.position, controller.myHexagons, out transform1, out posIndex1) < GetNearestCoordinate(transform.position, controller.ReserveSeat, out transform2, out posIndex2))
             {
-                if (/*controller.hexGridAvailable[posIndex1]*/ HexGridLayout.isHexPositionAvailable(transform1))
+                if (/*controller.hexGridAvailable[posIndex1]*/ Position.isPositionAvailable(transform1))
                 {
                     //clearLastPosition();
                     transform.SetParent(transform1);
@@ -177,7 +177,7 @@ public class ChessMove : MonoBehaviour
             }
             else
             {
-                if (/*controller.reserveSeatAvailable[posIndex2]*/ HexGridLayout.isHexPositionAvailable(transform2))
+                if (/*controller.reserveSeatAvailable[posIndex2]*/ Position.isPositionAvailable(transform2))
                 {
                     //clearLastPosition();
                     transform.SetParent(transform2);

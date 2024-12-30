@@ -56,30 +56,96 @@ public class ChessControl : MonoBehaviour
         }
     }
 
+    private GameObject CreateChess(GameObject chess, Transform place)
+    {
+        GameObject chess_ = Instantiate(chess) as GameObject;
+        Position.SetChess(chess_.transform, place);
+        chess_.transform.localPosition = new Vector3(0f, 0f, 0f);
+        chess_.GetComponent<ChessMove>().SetController(this);
+        chess_.GetComponent<ChessMove>().SetShop(this.GetComponent<ChessShop>());
+        chess_.GetComponent<ChessBase>().CopyProperties(chess.GetComponent<ChessBase>());
+        return chess_;
+    }
+
     public bool NewChess(GameObject chess_)
     {
         for (int i = 0; i < ReserveSeat.Length; i++)
         {
-            if (/*reserveSeatAvailable[i]*/ HexGridLayout.isHexPositionAvailable(ReserveSeat[i]))
+            if (/*reserveSeatAvailable[i]*/ Position.isPositionAvailable(ReserveSeat[i]))
             {
-                GameObject chess = Instantiate(chess_) as GameObject;
-                chess.transform.SetParent(ReserveSeat[i]);
-                chess.transform.localPosition = new Vector3(0f, 0f, 0f);
-                chess.GetComponent<ChessMove>().SetController(this);
-                chess.GetComponent<ChessMove>().SetShop(this.GetComponent<ChessShop>());
+                GameObject chess = CreateChess(chess_, ReserveSeat[i]);
+                //GameObject chess = Instantiate(chess_) as GameObject;
+                //chess.transform.SetParent(ReserveSeat[i]);
+                //chess.transform.localPosition = new Vector3(0f, 0f, 0f);
+                //chess.GetComponent<ChessMove>().SetController(this);
+                //chess.GetComponent<ChessMove>().SetShop(this.GetComponent<ChessShop>());
+
                 //chess.GetComponent<ChessMove>().SetPosIndex(i);
                 //reserveSeatAvailable[i] = false;
+
+                UpgradeChess(chess.name);
+
                 return true;
             }
         }
         return false;
     }
 
+    private IEnumerable<Transform> TraversalMyPlace(string name)
+    {
+        for (int i = ReserveSeat.Length - 1; i >= 0; i--)
+        {
+            if (!Position.isPositionAvailable(ReserveSeat[i]) && Position.GetChessName(ReserveSeat[i]) == name) //有棋子
+            {
+                yield return ReserveSeat[i];
+            }
+        }
+        for (int i = 0; i < myHexagons.Length; i++)
+        {
+            if (!Position.isPositionAvailable(myHexagons[i]) && Position.GetChessName(myHexagons[i]) == name) //有棋子
+            {
+                yield return myHexagons[i];
+            }
+        }
+    }
+
+    private void UpgradeChess(string name)
+    {
+        Queue<Transform>[] specifiedChess = new Queue<Transform>[ChessProperty.MAX_LEVEL - 1];
+        for (int i = 0; i < specifiedChess.Length; i++)
+        {
+            specifiedChess[i] = new Queue<Transform>();
+        }
+
+        foreach (Transform place in TraversalMyPlace(name))
+        {
+            Transform chess = Position.GetChess(place);
+            int levelMinusOne = chess.GetComponent<ChessBase>().level - 1;
+            while (levelMinusOne < specifiedChess.Length)
+            {
+                specifiedChess[levelMinusOne].Enqueue(chess);
+                if (specifiedChess[levelMinusOne].Count == ChessProperty.NUM_OF_UPGRADE)
+                {
+                    Destroy(specifiedChess[levelMinusOne].Dequeue().gameObject);
+                    Destroy(specifiedChess[levelMinusOne].Dequeue().gameObject);
+                    specifiedChess[levelMinusOne].Dequeue();
+                    chess.GetComponent<ChessBase>().Upgrade();
+                }
+                else
+                {
+                    break;
+                }
+
+                levelMinusOne++;
+            }
+        }
+    }
+
     public void PutOpponent(Transform[] opponentHexagons)
     {
         foreach (var place in opponentHexagons)
         {
-            if (!HexGridLayout.isHexPositionAvailable(place.transform))
+            if (!Position.isPositionAvailable(place.transform))
             {
                 Transform chess = place.GetChild(0);
                 opponentHexGridInfo.Add(chess, place);
@@ -127,7 +193,7 @@ public class ChessControl : MonoBehaviour
         int minDist = int.MaxValue;
         foreach (var place in myHexagons)
         {
-            if (!HexGridLayout.isHexPositionAvailable(place))
+            if (!Position.isPositionAvailable(place))
             {
                 Position myPlaceHexPos = place.GetComponent<Position>();
                 int dist = hexGrid.AStar(opponentChessPlacePos, myPlaceHexPos, out route);

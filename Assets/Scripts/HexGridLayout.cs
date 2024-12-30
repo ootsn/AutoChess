@@ -311,11 +311,6 @@ public class HexGridLayout : MonoBehaviour
         return rectPos.x >= 0 && rectPos.y >= 0 && rectPos.x < row && rectPos.y < col;
     }
 
-    public static bool isHexPositionAvailable(Transform placeTransform)
-    {
-        return placeTransform.childCount == 0;
-    }
-
     delegate bool WhetherMeetCondition(Transform transform);
 
     private class AStarHexPosition
@@ -334,7 +329,7 @@ public class HexGridLayout : MonoBehaviour
 
     private int GetCost(Position end)
     {
-        return isHexPositionAvailable(end.transform) ? 1 : 1000000;
+        return Position.isPositionAvailable(end.transform) ? 1 : 1000000;
     }
 
     private IEnumerable<Position> GetNeighbors(Position position, HexGridLayout parent)

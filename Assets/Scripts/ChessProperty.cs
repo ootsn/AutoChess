@@ -1,5 +1,6 @@
 using Mirror.BouncyCastle.Asn1.Cmp;
 using System;
+using System.Reflection;
 using UnityEngine;
 
 //øπ–‘¿‡–Õ
@@ -116,7 +117,7 @@ public class ChessProperty
         int numOfUpgrade = NUM_OF_UPGRADE;
         for (int i = 1; i < cost.Length; i++)
         {
-            cost[i] = baseCost * numOfUpgrade;
+            cost[i] = baseCost * numOfUpgrade - 1;
             numOfUpgrade *= NUM_OF_UPGRADE;
         }
     }
