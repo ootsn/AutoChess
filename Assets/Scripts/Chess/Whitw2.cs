@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Whitw2 : ChessBase
 {
-
+    
 }

@@ -41,8 +41,9 @@ public class ChessShop : MonoBehaviour
     [Header("EventSystem")]
     [SerializeField]
     private EventSystem eventSystem;
-    [Header("Json")]
-    public TextAsset dataJson;
+    [Header("ChessPool")]
+    [SerializeField]
+    private ChessPool pool;
 
     private int level;
     private int currEXP;
@@ -50,146 +51,8 @@ public class ChessShop : MonoBehaviour
     private int maxLevel;
     private bool isLocked;
     private bool notFlashRed;
-    private JsonData data;
-    private Dictionary<string, ChessData> chesses = new Dictionary<string, ChessData>();
+
     private ChessCommodity[] chessOnSale;
-    private ChessPool[] chessPool;
-
-    private readonly string chess2dFolderPath = "Prefabs/Chess_2d";
-    private readonly string chess25dFolderPath = "Prefabs/Chess_2.5d";
-
-    [System.Serializable]
-    private class OperatorPool
-    {
-        public int cost;
-        public int count;
-        public string[] operators;
-    }
-
-    [System.Serializable]
-    private class JsonData
-    {
-        public OperatorPool[] pool;
-        public int[] exp;
-        public float[][] probability;
-    }
-    private class ChessPool : Collection<ChessCount>
-    {
-        private ChessCount defaultValue;
-        private int totalCount;
-        private Dictionary<string, int> nameToIndex;
-
-        public ChessPool(ChessCount defaultValue)
-        {
-            this.defaultValue = defaultValue;
-            totalCount = 0;
-            nameToIndex = new Dictionary<string, int>();
-        }
-
-        protected override void InsertItem(int index, ChessCount newItem)
-        {
-            if (!this.Contains(newItem))
-            {
-                base.InsertItem(index, newItem);
-                totalCount += newItem.count;
-                nameToIndex.Add(newItem.name, index);
-            }
-        }
-
-        public bool RandomGetChessName(out ChessCount item)
-        {
-            if (this.totalCount == 0)
-            {
-                item = defaultValue;
-                return false;
-            }
-            else
-            {
-                int index = UnityEngine.Random.Range(0, this.totalCount);
-                item = null;
-                foreach (ChessCount cc in this)
-                {
-                    if (index < cc.count)
-                    {
-                        item = cc;
-                        break;
-                    }
-                    else
-                    {
-                        index -= cc.count;
-                    }
-                }
-                return true;
-            }
-        }
-
-        public void Decrease(ChessCount chessCount)
-        {
-            chessCount.count--;
-            this.totalCount--;
-        }
-
-        public void Increase(ChessCount chessCount)
-        {
-            chessCount.count++;
-            this.totalCount++;
-        }
-    }
-
-    private class ChessData
-    {
-        public GameObject c2d;
-        public GameObject c25d;
-        public int totality;
-        
-        public ChessData()
-        {
-            c2d = null;
-            c25d = null;
-            totality = 0;
-        }
-
-        public bool Empty()
-        {
-            return totality <= 0;
-        }
-
-        public void push()
-        {
-            totality++;
-        }
-
-        public bool pull()
-        {
-            if (totality <= 0)
-            {
-                return false;
-            }
-            else
-            {
-                totality--;
-                return true;
-            }
-        }
-    }
-
-    private class ChessCount
-    {
-        public string name;
-        public int count;
-
-        public ChessCount()
-        {
-            name = null;
-            count = -1;
-        }
-
-        public ChessCount(string name, int count)
-        {
-            this.name = name;
-            this.count = count;
-        }
-    }
 
     private class Pair<T1, T2>
     {
@@ -210,28 +73,27 @@ public class ChessShop : MonoBehaviour
 
     private class ChessCommodity
     {
-        public ChessCount chessCount;
+        public string name;
         public int cost;
         public bool inUse;
 
         public ChessCommodity()
         {
-            chessCount = null;
-            cost = 0;
+            name = null;
+            cost = -1;
             inUse = false;
         }
 
-        public ChessCommodity(ChessCount chessCount, int cost, bool inUse)
+        public ChessCommodity(bool inUse)
         {
-            this.chessCount = chessCount;
-            this.cost = cost;
+            this.name = null;
+            this.cost = -1;
             this.inUse = inUse;
         }
     }
 
     void Start()
     {
-        data = JsonConvert.DeserializeObject<JsonData>(dataJson.text);
 
         notFlashRed = true;
 
@@ -240,10 +102,10 @@ public class ChessShop : MonoBehaviour
         level = 2;
         //numOfChess = 1;
         currEXP = 0;
-        maxLevel = data.exp.Length;
+        maxLevel = pool.GetMaxLevel();
 
         levelText.GetComponent<TextMeshProUGUI>().text = String.Format("LEVEL {0}", level);
-        EXPText.GetComponent<TextMeshProUGUI>().text = String.Format("{0}/{1}", currEXP, data.exp[level]);
+        EXPText.GetComponent<TextMeshProUGUI>().text = String.Format("{0}/{1}", currEXP, pool.GetEXP(level));
         upgradeButton.GetComponent<Button>().onClick.AddListener(() => { BuyEXPPoints(4, 4); });
 
         isLocked = false;
@@ -252,12 +114,10 @@ public class ChessShop : MonoBehaviour
 
         refreshButton.GetComponent<Button>().onClick.AddListener(() => { Refresh(2); });
 
-        LoadData();
-
         chessOnSale = new ChessCommodity[chessButtons.Length];
         for (int i = 0; i < chessButtons.Length; i++)
         {
-            chessOnSale[i] = new ChessCommodity(new ChessCount(), -1, false);
+            chessOnSale[i] = new ChessCommodity(false);
         }
 
         chessButtons[0].GetComponent<Button>().onClick.AddListener(() => { BuyChess(0); });
@@ -280,7 +140,8 @@ public class ChessShop : MonoBehaviour
     {
         for (int i = 0; i < probabilities.Length; i++)
         {
-            probabilities[i].text = data.probability[level][i].ToString("0.##%");
+            //probabilities[i].text = data.probability[level][i].ToString("0.##%");
+            probabilities[i].text = pool.GetProbability(level, i).ToString("0.##%");
         }
     }
 
@@ -295,16 +156,16 @@ public class ChessShop : MonoBehaviour
     void Upgrade(int deltaEXP)
     {
         currEXP += deltaEXP;
-        while (level < maxLevel && currEXP >= data.exp[level])
+        while (level < maxLevel && currEXP >= /*data.exp[level]*/ pool.GetEXP(level))
         {
-            currEXP = currEXP - data.exp[level];
+            currEXP = currEXP - /*data.exp[level]*/pool.GetEXP(level);
             level++;
 
             RefreshProbabilityText();
         }
         levelText.GetComponent<TextMeshProUGUI>().text = String.Format("LEVEL {0}", level);
         if (level < maxLevel)
-            EXPText.GetComponent<TextMeshProUGUI>().text = String.Format("{0}/{1}", currEXP, data.exp[level]);
+            EXPText.GetComponent<TextMeshProUGUI>().text = String.Format("{0}/{1}", currEXP, /*data.exp[level]*/pool.GetEXP(level));
         else
             EXPText.GetComponent<TextMeshProUGUI>().text = "---";
     }
@@ -412,96 +273,33 @@ public class ChessShop : MonoBehaviour
         }
     }
 
-    void LoadChessPrefab()
-    {
-        var chess2dList = Resources.LoadAll<GameObject>(chess2dFolderPath);
-        var chess25dList = Resources.LoadAll<GameObject>(chess25dFolderPath);
+    //bool RandomGetChessByCost(int costMinusOne, out string name)
+    //{
+    //    if (pool.RandomGetChessName(costMinusOne, out name))
+    //    {
+    //        //chesses[chessCount.name].pull();
+    //        pool.pull(costMinusOne, name);
+    //        //GetChessSetByCost(cost).Decrease(chessCount);
+    //        //pool.Decrease(cost, chessCountIndex);
 
-        if (chess2dList.Length == chess25dList.Length)
-        {
-            Dictionary<string, GameObject> chess25d = new Dictionary<string, GameObject>();
-            foreach (var obj in chess25dList)
-            {
-                chess25d.Add(obj.name, obj);
-            }
 
-            for (int i = 0; i < chess2dList.Length; i++)
-            {
-                ChessData chessData = new ChessData();
-                chessData.c2d = chess2dList[i];
-                chessData.c25d = chess25d[chess2dList[i].name];
-                chesses.Add(chess2dList[i].name, chessData);
-            }
-        }
-        else
-        {
-            Debug.LogError("商店内的棋子种数（2d）和棋盘上的棋子种数（2.5d）不同");
-        }
-    }
-
-    void PerfectChessCount()
-    {        
-        foreach (var pool in data.pool)
-        {
-            foreach (var name in pool.operators)
-            {
-                chesses[name].totality = pool.count;
-            }
-        }
-    }
-
-    void PrepareChessPool()
-    {
-        chessPool = new ChessPool[data.pool.Length];
-        for (int i = 0;i < chessPool.Length;i++)
-        {
-            chessPool[i] = new ChessPool(null);
-        }
-
-        foreach (var pool in data.pool)
-        {
-            ChessPool set = GetChessSetByCost(pool.cost);
-            foreach (var name in pool.operators)
-            {
-                set.Add(new ChessCount(name, pool.count));
-            }
-        }
-    }
-
-    ChessPool GetChessSetByCost(int cost)
-    {
-        return chessPool[cost - 1];
-    }
-
-    void LoadData()
-    {
-        LoadChessPrefab();
-        PerfectChessCount();
-        PrepareChessPool();
-    }
-
-    bool RandomGetChessByCost(out ChessCount chessCount, int cost)
-    {
-        if (GetChessSetByCost(cost).RandomGetChessName(out chessCount))
-        {
-            chesses[chessCount.name].pull();
-            GetChessSetByCost(cost).Decrease(chessCount);
-
-            return true;
-        }
-        else
-        {
-            chessCount = null;
-            return false;
-        }
-    }
+    //        return true;
+    //    }
+    //    else
+    //    {
+    //        name = null;
+    //        return false;
+    //    }
+    //}
 
     void PutChessBack(ChessCommodity chessCommodity)
     {
         if (chessCommodity.inUse == true)
         {
-            GetChessSetByCost(chessCommodity.cost).Increase(chessCommodity.chessCount);
-            chesses[chessCommodity.chessCount.name].push();
+            //GetChessSetByCost(chessCommodity.cost).Increase(chessCommodity.chessCount);
+            //pool.Increase(chessCommodity.name);
+            //chesses[chessCommodity.chessCount.name].push();
+            pool.push(chessCommodity.cost - 1, chessCommodity.name);
         }
     }
 
@@ -519,8 +317,9 @@ public class ChessShop : MonoBehaviour
         chessButtons[index].GetComponent<Image>().enabled = true;
         chessButtons[index].transform.GetChild(0).GetComponent<Image>().enabled = true;
 
-        chessButtons[index].transform.GetChild(0).GetComponent<RectTransform>().localPosition = chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<RectTransform>().localPosition;
-        chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite = chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<Image>().sprite;
+        string chessName = chessOnSale[index].name;
+        chessButtons[index].transform.GetChild(0).GetComponent<RectTransform>().localPosition = pool.GetChess2dRectTransformLocalPosition(chessName)/*chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<RectTransform>().localPosition*/;
+        chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite = pool.GetChess2dImageSprite(chessName)/*chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<Image>().sprite*/;
     }
 
     void Refresh(int cost)
@@ -533,21 +332,23 @@ public class ChessShop : MonoBehaviour
             {
                 ClearChessButton(i);
 
-                float currentProbability = UnityEngine.Random.value;
-                float totalProbability = 0f;
-                int index = 0;
-                for (; index < data.probability[level].Length; index++)
-                {
-                    totalProbability += data.probability[level][index];
-                    if (currentProbability < totalProbability)
-                    {
-                        break;
-                    }
-                } 
+                //float currentProbability = UnityEngine.Random.value;
+                //float totalProbability = 0f;
+                //int costMinusOne = 0;
+                //for (; costMinusOne < pool.GetMaxCost()/*data.probability[level].Length*/; costMinusOne++)
+                //{
+                //    totalProbability += /*data.probability[level][index]*/pool.GetProbability(level, costMinusOne);
+                //    if (currentProbability < totalProbability)
+                //    {
+                //        break;
+                //    }
+                //} 
 
-                if (RandomGetChessByCost(out chessOnSale[i].chessCount, data.pool[index].cost))
+                if (pool.RandomGetChessNameByLevel(level, out chessOnSale[i].cost, out chessOnSale[i].name))
                 {
-                    chessOnSale[i].cost = data.pool[index].cost;
+                    pool.pull(chessOnSale[i].cost - 1, chessOnSale[i].name);
+
+                    //chessOnSale[i].cost = /*data.pool[costMinusOne].cost*/costMinusOne + 1;
                     chessOnSale[i].inUse = true;
 
                     SellAtChessButton(i);
@@ -563,7 +364,7 @@ public class ChessShop : MonoBehaviour
     void BuyChess(int index)
     {
         string chessName = chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite.name;
-        if (AbleToSpendMoney(chessOnSale[index].cost) && this.GetComponent<ChessControl>().NewChess(chesses[chessName].c25d))
+        if (AbleToSpendMoney(chessOnSale[index].cost) && this.GetComponent<ChessControl>().NewChess(/*chesses[chessName].c25d*/pool.GetChess25d(chessName)))
         {
             SpendMoneyDirectly(chessOnSale[index].cost);
             chessOnSale[index].inUse = false;

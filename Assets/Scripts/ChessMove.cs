@@ -5,7 +5,7 @@ using UnityEngine;
 public class ChessMove : MonoBehaviour
 {
     //做出售功能，临时替代棋子的费用，之后完善棋子属性后记得替换变量
-    private readonly int a = 10;
+    //private readonly int a = 10;
 
     private bool isDragging = false;
     //private Vector3 dragOrigin; // 鼠标按下时的物体位置
@@ -14,11 +14,13 @@ public class ChessMove : MonoBehaviour
     private ChessControl controller;
     private ChessShop shop;
     private Camera mainCamera;
+    private ChessBase chessBase;
 
     // Start is called before the first frame update
     void Start()
     {
         mainCamera = shop.mainCamera;
+        chessBase = this.GetComponent<ChessBase>();
     }
 
     // Update is called once per frame
@@ -54,7 +56,7 @@ public class ChessMove : MonoBehaviour
 
         //dragOrigin = transform.position;
 
-        shop.DisplaySellingInterface(a);
+        shop.DisplaySellingInterface(chessBase.GetCost());
     }
 
     // 当鼠标拖动时调用
@@ -118,7 +120,7 @@ public class ChessMove : MonoBehaviour
                 float checkerboardScaleZ = controller.checkerboard.transform.localScale.z;
                 float leftX = controller.checkerboard.transform.position.x - checkerboardScaleX * 5f;
                 float rightX = controller.checkerboard.transform.position.x + checkerboardScaleX * 5f;
-                float leftZ = controller.checkerboard.transform.position.z - checkerboardScaleZ * 5f - 5f;
+                float leftZ = controller.checkerboard.transform.position.z - checkerboardScaleZ * 5f - 8f;
                 float rightZ = controller.checkerboard.transform.position.z + checkerboardScaleZ * 5f;
 
                 if (pos.x < leftX) pos.x = leftX;
@@ -154,7 +156,7 @@ public class ChessMove : MonoBehaviour
     // 当鼠标释放时调用
     void OnMouseUp()
     {
-        if (!shop.Sell(this.gameObject, a)) 
+        if (!shop.Sell(this.gameObject, chessBase.GetCost())) 
         { 
             Transform transform1, transform2;
             int posIndex1, posIndex2;
