@@ -301,10 +301,10 @@ public class HexGridLayout : MonoBehaviour
         chess.localPosition = new Vector3(0f, 0f, 0f);
     }
 
-    private bool RectIndexValid(int x, int y)
-    {
-        return x >= 0 && y >= 0 && x < row && y < col;
-    }
+    //private bool RectIndexValid(int x, int y)
+    //{
+    //    return x >= 0 && y >= 0 && x < row && y < col;
+    //}
 
     private bool RectPositionValid(RectPosition rectPos)
     {

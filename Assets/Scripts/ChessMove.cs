@@ -156,7 +156,7 @@ public class ChessMove : MonoBehaviour
     // 当鼠标释放时调用
     void OnMouseUp()
     {
-        if (!shop.Sell(this.gameObject, chessBase.GetCost())) 
+        if (!shop.Sell(chessBase, chessBase.GetCost())) 
         { 
             Transform transform1, transform2;
             int posIndex1, posIndex2;

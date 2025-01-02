@@ -141,7 +141,7 @@ public class ChessShop : MonoBehaviour
         for (int i = 0; i < probabilities.Length; i++)
         {
             //probabilities[i].text = data.probability[level][i].ToString("0.##%");
-            probabilities[i].text = pool.GetProbability(level, i).ToString("0.##%");
+            probabilities[i].text = pool.GetProbability(level, i + 1).ToString("0.##%");
         }
     }
 
@@ -299,7 +299,7 @@ public class ChessShop : MonoBehaviour
             //GetChessSetByCost(chessCommodity.cost).Increase(chessCommodity.chessCount);
             //pool.Increase(chessCommodity.name);
             //chesses[chessCommodity.chessCount.name].push();
-            pool.push(chessCommodity.cost - 1, chessCommodity.name);
+            pool.Push(chessCommodity.cost, chessCommodity.name);
         }
     }
 
@@ -346,7 +346,7 @@ public class ChessShop : MonoBehaviour
 
                 if (pool.RandomGetChessNameByLevel(level, out chessOnSale[i].cost, out chessOnSale[i].name))
                 {
-                    pool.pull(chessOnSale[i].cost - 1, chessOnSale[i].name);
+                    pool.Pull(chessOnSale[i].cost, chessOnSale[i].name);
 
                     //chessOnSale[i].cost = /*data.pool[costMinusOne].cost*/costMinusOne + 1;
                     chessOnSale[i].inUse = true;
@@ -373,7 +373,7 @@ public class ChessShop : MonoBehaviour
         }
     }
 
-    public bool Sell(GameObject gameObject, int cost)
+    public bool Sell(ChessBase chess, int cost)
     {
         // 创建一个 PointerEventData 来保存鼠标点击数据
         PointerEventData pointerEventData = new PointerEventData(eventSystem)
@@ -390,7 +390,8 @@ public class ChessShop : MonoBehaviour
         if (results.Count > 0 && results[0].gameObject == sellArea)
         {
             AddMoneyDirectly(cost);
-            Destroy(gameObject);
+            pool.Push(chess.GetBaseCost(), chess.GetName(), chess.quantity);
+            Destroy(chess.gameObject);
             return true;
         }
         else

@@ -7,7 +7,7 @@ using UnityEngine;
 public abstract class ChessBase : MonoBehaviour
 {
     //private int baseCost;
-    private ChessProperty properties = null;
+    private ChessProperty property = null;
 
     public int level { get; private set; } //当前棋子等级，从一开始
     public int quantity
@@ -29,26 +29,36 @@ public abstract class ChessBase : MonoBehaviour
 
     public void CopyProperties(ChessBase chessBase)
     {
-        this.properties = DeepCopy(chessBase.properties);
+        this.property = Util.DeepCopy(chessBase.property);
     }
 
-    public void SetProperties(ChessProperty properties)
+    public void SetProperty(ChessProperty properties)
     {
-        this.properties = properties;
+        this.property = properties;
     }
 
-    public void SetProperties(JsonPropertiy jsonPropertiy)
+    //public void SetProperties(JsonPropertiy jsonPropertiy)
+    //{
+    //    if (property == null)
+    //    {
+    //        property = new ChessProperty();
+    //    }
+    //    property.Load(jsonPropertiy);
+    //}
+
+    public string GetName()
     {
-        if (properties == null)
-        {
-            properties = new ChessProperty();
-        }
-        properties.Load(jsonPropertiy);
+        return property.Name;
     }
 
     public int GetCost()
     {
-        return properties.GetCost(level);
+        return property.GetCost(level);
+    }
+
+    public int GetBaseCost()
+    {
+        return property.GetCost(1);
     }
 
     public void Upgrade()
@@ -59,26 +69,5 @@ public abstract class ChessBase : MonoBehaviour
     public bool isMaxLevel()
     {
         return level <= ChessProperty.MAX_LEVEL;
-    }
-
-    public static T DeepCopy<T>(T obj)
-    {
-        if (obj == null)
-        {
-            return obj;
-        }
-        var type = obj.GetType();
-        if (obj is string || type.IsValueType)
-        {
-            return obj;
-        }
-
-        var result = Activator.CreateInstance(type);
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
-        foreach (var field in fields)
-        {
-            field.SetValue(result, field.GetValue(obj));
-        }
-        return (T)result;
     }
 }

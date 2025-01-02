@@ -26,54 +26,56 @@ public class ChessProperty
     //基础属性
     //数组表示每个等级不同数值，单个值表示所有等级共用
     //棋子等级从1开始，从数组中取值要先减一
+    public string Name;
+    //[SerializeField]
+    public int[] Hp; //基础生命值
+    //[SerializeField]
+    public int[] Atk; //基础攻击力
+    //[SerializeField]
+    public int[] Def; //基础防御力
+    //[SerializeField]
+    public float[] MagicResistance; //基础法术抗性
+    //[SerializeField]
+    public float[] EpDamageResistance; //基础元素抗性
+    //[SerializeField]
+    public float[] EpResistance; //基础损伤抗性
+    //[SerializeField]
+    public int AttackRange; //攻击范围
+    //[SerializeField]
+    public float AttackSpeed; //攻击速度，默认为1.0
+    //[SerializeField]
+    public float AttackTime; //基础攻击间隔(s)，实际攻击间隔=基础攻击间隔/攻击速度
+    //[SerializeField]
+    public float MoveSpeed; //移动速度，每秒移动多少格
+    //[SerializeField]
+    public int TauntLevel; //嘲讽等级，优先攻击嘲讽等级高的
+    //[SerializeField]
+    public float EvasionPhysical; //物理伤害闪避率
+    //[SerializeField]
+    public float EvasionMagical; //法术伤害闪避率
+    //[SerializeField]
+    public float DamageHitratePhysical; //物理命中率
+    //[SerializeField]
+    public float DamageHitrateMagical; //法术命中率
+    //[SerializeField]
+    public int HpRecoverySpeed; //生命值回复速度（每秒回复多少点生命值），默认为0
+    //[SerializeField]
+    public float HpPercentRecoverySpeed; // 生命百分比回复速度（每秒回复百分之多少的最大生命值），默认为0
+    //[SerializeField]
+    public int MassLevel; //重量等级
+    //[SerializeField]
+    public int ForceLevel; //力度等级
+    //[SerializeField]
+    public float SkillRecoveryBonus; //技力回复加成
+    //[SerializeField]
+    public bool[] AbnormalResistance; //异常抗性，有(true)或无(false)
+    //[SerializeField]
+    public float[] AbnormalResistanceRatio; //抵抗倍率，当进入某种异常状态时，实际异常时间=设定的时间/该倍率，默认为1.0
+
     //[SerializeField]
     private int[] cost; //费用
-    //[SerializeField]
-    private int[] hp; //基础生命值
-    //[SerializeField]
-    private int[] atk; //基础攻击力
-    //[SerializeField]
-    private int[] def; //基础防御力
-    //[SerializeField]
-    private float[] magicResistance; //基础法术抗性
-    //[SerializeField]
-    private float[] epDamageResistance; //基础元素抗性
-    //[SerializeField]
-    private float[] epResistance; //基础损伤抗性
-    //[SerializeField]
-    private int attackRange; //攻击范围
-    //[SerializeField]
-    private float attackSpeed; //攻击速度，默认为1.0
-    //[SerializeField]
-    private float attackTime; //基础攻击间隔(s)，实际攻击间隔=基础攻击间隔/攻击速度
-    //[SerializeField]
-    private float moveSpeed; //移动速度，每秒移动多少格
-    //[SerializeField]
-    private int tauntLevel; //嘲讽等级，优先攻击嘲讽等级高的
-    //[SerializeField]
-    private float evasionPhysical; //物理伤害闪避率
-    //[SerializeField]
-    private float evasionMagical; //法术伤害闪避率
-    //[SerializeField]
-    private float damageHitratePhysical; //物理命中率
-    //[SerializeField]
-    private float damageHitrateMagical; //法术命中率
-    //[SerializeField]
-    private int hpRecoverySpeed; //生命值回复速度（每秒回复多少点生命值），默认为0
-    //[SerializeField]
-    private float hpPercentRecoverySpeed; // 生命百分比回复速度（每秒回复百分之多少的最大生命值），默认为0
-    //[SerializeField]
-    private int massLevel; //重量等级
-    //[SerializeField]
-    private int forceLevel; //力度等级
-    //[SerializeField]
-    private float skillRecoveryBonus; //技力回复加成
-    //[SerializeField]
-    private bool[] abnormalResistance; //异常抗性，有(true)或无(false)
-    //[SerializeField]
-    private float[] abnormalResistanceRatio; //抵抗倍率，当进入某种异常状态时，实际异常时间=设定的时间/该倍率，默认为1.0
 
-    //修饰区
+    //修饰区，可以考虑放到ChessBase
     private int atkDirectPlus; //攻击力的直接加算
     private int atkDirectMultiply; //攻击力的直接乘算
     private int atkFinalPlus; //攻击力的最终加算
@@ -85,25 +87,25 @@ public class ChessProperty
     //属性里面估计还得加目前锁定的敌人，索敌算法写在别的类，可以用广度优先锁定敌人，后续用A*算法寻路
     public ChessProperty()
     {
-        attackSpeed = 1f;
-        abnormalResistance = new bool[(int)AbnormalResistanceType.COUNT];
-        abnormalResistanceRatio = new float[(int)AbnormalResistanceType.COUNT];
-        for (int i = 0; i < abnormalResistanceRatio.Length; i++)
+        AttackSpeed = 1f;
+        AbnormalResistance = new bool[(int)AbnormalResistanceType.COUNT];
+        AbnormalResistanceRatio = new float[(int)AbnormalResistanceType.COUNT];
+        for (int i = 0; i < AbnormalResistanceRatio.Length; i++)
         {
-            abnormalResistanceRatio[i] = 1f;
+            AbnormalResistanceRatio[i] = 1f;
         }
     }
 
-    public void Load(JsonPropertiy jsonPropertiy)
-    {
-        SetBaseCost(jsonPropertiy.baseCost);
-        hp = jsonPropertiy.hp;
-        atk = jsonPropertiy.atk;
-        def = jsonPropertiy.def;
-        magicResistance = jsonPropertiy.magicResistance;
-        attackRange = jsonPropertiy.attackRange;
-        attackSpeed = jsonPropertiy.attackSpeed;
-    }
+    //public void Load(JsonPropertiy jsonPropertiy)
+    //{
+    //    SetBaseCost(jsonPropertiy.baseCost);
+    //    Hp = jsonPropertiy.hp;
+    //    Atk = jsonPropertiy.atk;
+    //    Def = jsonPropertiy.def;
+    //    MagicResistance = jsonPropertiy.magicResistance;
+    //    AttackRange = jsonPropertiy.attackRange;
+    //    AttackSpeed = jsonPropertiy.attackSpeed;
+    //}
 
     public int GetCost(int level)
     {
