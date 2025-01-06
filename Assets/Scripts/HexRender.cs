@@ -16,6 +16,9 @@ public struct Face
     }
 }
 
+/// <summary>
+/// 网上抄的六边形绘制脚本
+/// </summary>
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 public class HexRender : MonoBehaviour

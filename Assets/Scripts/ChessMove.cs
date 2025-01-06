@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ChessBase))]
 public class ChessMove : MonoBehaviour
 {
     //做出售功能，临时替代棋子的费用，之后完善棋子属性后记得替换变量
@@ -12,14 +13,11 @@ public class ChessMove : MonoBehaviour
     //private bool inHexGrid = false;
     //private int posIndex;
     private ChessControl controller;
-    private ChessShop shop;
-    private Camera mainCamera;
     private ChessBase chessBase;
 
     // Start is called before the first frame update
     void Start()
     {
-        mainCamera = shop.mainCamera;
         chessBase = this.GetComponent<ChessBase>();
     }
 
@@ -52,11 +50,10 @@ public class ChessMove : MonoBehaviour
         isDragging = true;
 
         //controller.hexGrid.SetActive(true);
-        controller.hexGrid.ActivateMyHexGrid();
 
         //dragOrigin = transform.position;
 
-        shop.DisplaySellingInterface(chessBase.GetCost());
+        controller.UsedByChessMoveWhenTouchChess(chessBase);
     }
 
     // 当鼠标拖动时调用
@@ -67,7 +64,7 @@ public class ChessMove : MonoBehaviour
             // 获取鼠标在世界空间中的位置
             Vector3 mousePosition = Input.mousePosition;
             //Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
-            Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+            Ray ray = controller.MainCamera.ScreenPointToRay(mousePosition);
 
             //RaycastHit hit;
             //if (Physics.Raycast(ray, out hit))
@@ -105,7 +102,7 @@ public class ChessMove : MonoBehaviour
             //    }
             //}
 
-            Vector3 palneNormal = controller.checkerboard.transform.up;
+            Vector3 palneNormal = controller.GetCheckerboardUp();
             Vector3 planePoint = new Vector3(0, 0, 0);
             Vector3 linePoint = ray.origin;
             Vector3 lineDir = ray.direction;
@@ -116,12 +113,12 @@ public class ChessMove : MonoBehaviour
                 Vector3 pos = a / b * lineDir + linePoint;
                 //Debug.DrawLine(pos, new Vector3(pos.x, pos.y + 30, pos.z), Color.blue);
 
-                float checkerboardScaleX = controller.checkerboard.transform.localScale.x;
-                float checkerboardScaleZ = controller.checkerboard.transform.localScale.z;
-                float leftX = controller.checkerboard.transform.position.x - checkerboardScaleX * 5f;
-                float rightX = controller.checkerboard.transform.position.x + checkerboardScaleX * 5f;
-                float leftZ = controller.checkerboard.transform.position.z - checkerboardScaleZ * 5f - 8f;
-                float rightZ = controller.checkerboard.transform.position.z + checkerboardScaleZ * 5f;
+                float checkerboardScaleX = controller.GetCheckerboardLocalScaleX();
+                float checkerboardScaleZ = controller.GetCheckerboardLocalScaleZ();
+                float leftX = controller.GetCheckerboardPositionX() - checkerboardScaleX * 5f;
+                float rightX = controller.GetCheckerboardPositionX() + checkerboardScaleX * 5f;
+                float leftZ = controller.GetCheckerboardPositionZ() - checkerboardScaleZ * 5f - 8f;
+                float rightZ = controller.GetCheckerboardPositionZ() + checkerboardScaleZ * 5f;
 
                 if (pos.x < leftX) pos.x = leftX;
                 else if (pos.x > rightX) pos.x = rightX;
@@ -156,7 +153,7 @@ public class ChessMove : MonoBehaviour
     // 当鼠标释放时调用
     void OnMouseUp()
     {
-        if (!shop.Sell(chessBase, chessBase.GetCost())) 
+        if (!controller.WhetherSellWhenReleaseChess(chessBase)) 
         { 
             Transform transform1, transform2;
             int posIndex1, posIndex2;
@@ -195,9 +192,8 @@ public class ChessMove : MonoBehaviour
 
         isDragging = false;
         //controller.hexGrid.SetActive(false);
-        controller.hexGrid.DeactivateMyHexGrid();
 
-        shop.DisplayPurchaseInterface();
+        controller.UsedByChessMoveWhenReleaseChess();
     }
 
     private void ExchangeParent(Transform objParentTransform)
@@ -213,10 +209,5 @@ public class ChessMove : MonoBehaviour
     public void SetController(ChessControl controller)
     {
         this.controller = controller;
-    }
-
-    public void SetShop(ChessShop shop)
-    {
-        this.shop = shop;
     }
 }

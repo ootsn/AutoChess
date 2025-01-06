@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Wisdel : ChessBase
 {
-    public Wisdel() 
+    public Wisdel()
     {
         ChessProperty property = new ChessProperty();
         property.SetBaseCost(3);
@@ -17,5 +17,10 @@ public class Wisdel : ChessBase
         property.AttackSpeed = 0.8f;
 
         SetProperty(property);
+    }
+
+    public override void Skill()
+    {
+        throw new System.NotImplementedException();
     }
 }

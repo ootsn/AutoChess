@@ -18,4 +18,9 @@ public class Whitw2 : ChessBase
 
         SetProperty(property);
     }
+
+    public override void Skill()
+    {
+        throw new System.NotImplementedException();
+    }
 }

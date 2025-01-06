@@ -15,8 +15,8 @@ using UnityEngine.EventSystems;
 
 public class ChessShop : MonoBehaviour
 {
-    [Header("MainCamera")]
-    public Camera mainCamera;
+    //[Header("ChessControl")]
+    //public ChessControl controller;
     [Header("Cost")]
     public int money; //暂时放这，调试用。后期看看要不要移到private
     public GameObject costText;
@@ -322,6 +322,7 @@ public class ChessShop : MonoBehaviour
         chessButtons[index].transform.GetChild(0).GetComponent<Image>().sprite = pool.GetChess2dImageSprite(chessName)/*chesses[chessOnSale[index].chessCount.name].c2d.GetComponent<Image>().sprite*/;
     }
 
+    //刷新
     void Refresh(int cost)
     {
         if (SpendMoney(cost))

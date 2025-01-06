@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-class Util
+/// <summary>
+/// π§æﬂ¿‡
+/// </summary>
+static class Util
 {
     public static T DeepCopy<T>(T obj)
     {

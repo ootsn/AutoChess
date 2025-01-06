@@ -22,13 +22,13 @@ public class HexGridLayout : MonoBehaviour
     public bool yReverse;
     public Material material;
 
-    private GameObject opponentHexGrid;
-    private GameObject myHexGrid;
-    private GameObject[][] hexRect;
-    private int row;
-    private int col;
+    public GameObject OpponentHexGrid { get; private set; }
+    public GameObject MyHexGrid { get; private set; }
+    public GameObject[][] HexRect { get; private set; }
+    public int Row { get; private set; }
+    public int Col { get; private set; }
 
-    private delegate void Func(Transform transform);
+    //private delegate void Func(Transform transform);
 
     private void Awake()
     {
@@ -38,132 +38,132 @@ public class HexGridLayout : MonoBehaviour
 
     private void OnValidate()
     {
-        if (Application.isPlaying && opponentHexGrid != null && myHexGrid != null)
-        {
-            for (int i = 0; i < opponentHexGrid.transform.childCount; i++)
-            {
-                Destroy(opponentHexGrid.transform.GetChild(i).gameObject);
-            }
-            for (int i = 0; i < myHexGrid.transform.childCount; i++)
-            {
-                Destroy(myHexGrid.transform.GetChild(i).gameObject);
-            }
-            LayoutGrid();
-        }
+        //if (Application.isPlaying && opponentHexGrid != null && myHexGrid != null)
+        //{
+        //    for (int i = 0; i < opponentHexGrid.transform.childCount; i++)
+        //    {
+        //        Destroy(opponentHexGrid.transform.GetChild(i).gameObject);
+        //    }
+        //    for (int i = 0; i < myHexGrid.transform.childCount; i++)
+        //    {
+        //        Destroy(myHexGrid.transform.GetChild(i).gameObject);
+        //    }
+        //    LayoutGrid();
+        //}
     }
 
-    private void ApplyFuncToHexagon(Func func, Transform parent)
-    {
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            func(parent.GetChild(i));
-        }
-    }
+    //private void ApplyFuncToHexagon(Func func, Transform parent)
+    //{
+    //    for (int i = 0; i < parent.childCount; i++)
+    //    {
+    //        func(parent.GetChild(i));
+    //    }
+    //}
 
-    public void ActivateMyHexGrid()
-    {
-        Func func = (Transform transform) =>
-        {
-            transform.GetComponent<MeshRenderer>().enabled = true;
-        };
-        ApplyFuncToHexagon(func, myHexGrid.transform);
-    }
+    //public void ActivateMyHexGrid()
+    //{
+    //    Func func = (Transform transform) =>
+    //    {
+    //        transform.GetComponent<MeshRenderer>().enabled = true;
+    //    };
+    //    ApplyFuncToHexagon(func, myHexGrid.transform);
+    //}
 
-    public void DeactivateMyHexGrid()
-    {
-        Func func = (Transform transform) =>
-        {
-            transform.GetComponent<MeshRenderer>().enabled = false;
-        };
-        ApplyFuncToHexagon(func, myHexGrid.transform);
-    }
+    //public void DeactivateMyHexGrid()
+    //{
+    //    Func func = (Transform transform) =>
+    //    {
+    //        transform.GetComponent<MeshRenderer>().enabled = false;
+    //    };
+    //    ApplyFuncToHexagon(func, myHexGrid.transform);
+    //}
 
-    public void ActivateOpponentHexGrid()
-    {
-        Func func = (Transform transform) =>
-        {
-            transform.GetComponent<MeshRenderer>().enabled = true;
-        };
-        ApplyFuncToHexagon(func, opponentHexGrid.transform);
-    }
+    //public void ActivateOpponentHexGrid()
+    //{
+    //    Func func = (Transform transform) =>
+    //    {
+    //        transform.GetComponent<MeshRenderer>().enabled = true;
+    //    };
+    //    ApplyFuncToHexagon(func, opponentHexGrid.transform);
+    //}
 
-    public void DeactivateOpponentHexGrid()
-    {
-        Func func = (Transform transform) =>
-        {
-            transform.GetComponent<MeshRenderer>().enabled = false;
-        };
-        ApplyFuncToHexagon(func, opponentHexGrid.transform);
-    }
+    //public void DeactivateOpponentHexGrid()
+    //{
+    //    Func func = (Transform transform) =>
+    //    {
+    //        transform.GetComponent<MeshRenderer>().enabled = false;
+    //    };
+    //    ApplyFuncToHexagon(func, opponentHexGrid.transform);
+    //}
 
-    public Vector3[] GetMyHexGridPositions()
-    {
-        Vector3[] myHexPositions;
-        GetGameObjectPositions(myHexGrid.transform, out myHexPositions);
-        return myHexPositions;
-    }
+    //public Vector3[] GetMyHexGridPositions()
+    //{
+    //    Vector3[] myHexPositions;
+    //    GetGameObjectPositions(myHexGrid.transform, out myHexPositions);
+    //    return myHexPositions;
+    //}
 
-    public Transform[] GetMyHexGridTransform()
-    {
-        Transform[] myHexGridTransform;
-        GetGameObjectTransform(myHexGrid.transform, out myHexGridTransform);
-        return myHexGridTransform;
-    }
+    //public Transform[] GetMyHexGridTransform()
+    //{
+    //    Transform[] myHexGridTransform;
+    //    GetGameObjectTransform(myHexGrid.transform, out myHexGridTransform);
+    //    return myHexGridTransform;
+    //}
 
-    public Transform[] GetOpponentHexGridTransform()
-    {
-        Transform[] opponentHexGridTransform;
-        GetGameObjectTransform(opponentHexGrid.transform, out opponentHexGridTransform);
-        return opponentHexGridTransform;
-    }
+    //public Transform[] GetOpponentHexGridTransform()
+    //{
+    //    Transform[] opponentHexGridTransform;
+    //    GetGameObjectTransform(opponentHexGrid.transform, out opponentHexGridTransform);
+    //    return opponentHexGridTransform;
+    //}
 
-    public void GetOpponentHexGridPositions(out Vector3[] opponentHexPositions)
-    {
-        GetGameObjectPositions(opponentHexGrid.transform, out opponentHexPositions);
-    }
+    //public void GetOpponentHexGridPositions(out Vector3[] opponentHexPositions)
+    //{
+    //    GetGameObjectPositions(opponentHexGrid.transform, out opponentHexPositions);
+    //}
 
-    private void GetGameObjectPositions(Transform parent, out Vector3[] positions)
-    {
-        int len = parent.childCount;
-        positions = new Vector3[len];
-        for (int i = 0; i < len; i++)
-        {
-            positions[i] = parent.GetChild(i).transform.position;
-        }
-    }
+    //private void GetGameObjectPositions(Transform parent, out Vector3[] positions)
+    //{
+    //    int len = parent.childCount;
+    //    positions = new Vector3[len];
+    //    for (int i = 0; i < len; i++)
+    //    {
+    //        positions[i] = parent.GetChild(i).transform.position;
+    //    }
+    //}
 
-    private void GetGameObjectTransform(Transform parent, out Transform[] transform)
-    {
-        int len = parent.childCount;
-        transform = new Transform[len];
-        for (int i = 0; i < len; i++)
-        {
-            transform[i] = parent.GetChild(i).transform;
-        }
-    }
+    //private void GetGameObjectTransform(Transform parent, out Transform[] transform)
+    //{
+    //    int len = parent.childCount;
+    //    transform = new Transform[len];
+    //    for (int i = 0; i < len; i++)
+    //    {
+    //        transform[i] = parent.GetChild(i).transform;
+    //    }
+    //}
 
     private void Init()
     {
-        opponentHexGrid = new GameObject("OpponentHexGrid");
-        opponentHexGrid.transform.SetParent(transform, false);
-        myHexGrid = new GameObject("MyHexGrid");
-        myHexGrid.transform.SetParent(transform, false);
+        OpponentHexGrid = new GameObject("OpponentHexGrid");
+        OpponentHexGrid.transform.SetParent(transform, false);
+        MyHexGrid = new GameObject("MyHexGrid");
+        MyHexGrid.transform.SetParent(transform, false);
 
         if (WhetherYAsRow)
         {
-            row = gridSize.y;
-            col = gridSize.x;
+            Row = gridSize.y;
+            Col = gridSize.x;
         }
         else
         {
-            row = gridSize.x;
-            col = gridSize.y;
+            Row = gridSize.x;
+            Col = gridSize.y;
         }
 
-        hexRect = new GameObject[row][];
-        for (int i = 0; i < row; i++)
+        HexRect = new GameObject[Row][];
+        for (int i = 0; i < Row; i++)
         {
-            hexRect[i] = new GameObject[col];
+            HexRect[i] = new GameObject[Col];
         }
     }
 
@@ -188,15 +188,14 @@ public class HexGridLayout : MonoBehaviour
         //    }
         //}
 
-        for (int y = 0; y < col; y++)
+        for (int y = 0; y < Col; y++)
         {
-            int x = 0;
-            for (; x < row; x++)
+            for (int x = 0; x < Row; x++)
             {
                 RectPosition rectPos = new RectPosition(x, y);
                 HexPosition hexPos = Position.Rect2Hex(rectPos);
-                Transform parent = (x < row / 2 ? opponentHexGrid.transform : myHexGrid.transform);
-                hexRect[x][y] = NewHexTile(rectPos, hexPos, parent);
+                Transform parent = (x < Row / 2 ? OpponentHexGrid.transform : MyHexGrid.transform);
+                HexRect[x][y] = NewHexTile(rectPos, hexPos, parent);
             }
         }
     }
@@ -284,10 +283,10 @@ public class HexGridLayout : MonoBehaviour
     //    newY = col - y - 1;
     //}
 
-    public RectPosition Reflect(RectPosition rectPos)
-    {
-        return new RectPosition(row - rectPos.x - 1, col - rectPos.y - 1);
-    }
+    //public RectPosition Reflect(RectPosition rectPos)
+    //{
+    //    return new RectPosition(Row - rectPos.x - 1, Col - rectPos.y - 1);
+    //}
 
     //public void SetChess(Transform chess, int x, int y)
     //{
@@ -295,91 +294,91 @@ public class HexGridLayout : MonoBehaviour
     //    chess.localPosition = new Vector3(0f, 0f, 0f);
     //}
 
-    public void SetChess(Transform chess, RectPosition rectPos)
-    {
-        chess.SetParent(hexRect[rectPos.x][rectPos.y].transform);
-        chess.localPosition = new Vector3(0f, 0f, 0f);
-    }
+    //public void SetChess(Transform chess, RectPosition rectPos)
+    //{
+    //    chess.SetParent(hexRect[rectPos.x][rectPos.y].transform);
+    //    chess.localPosition = new Vector3(0f, 0f, 0f);
+    //}
 
     //private bool RectIndexValid(int x, int y)
     //{
     //    return x >= 0 && y >= 0 && x < row && y < col;
     //}
 
-    private bool RectPositionValid(RectPosition rectPos)
-    {
-        return rectPos.x >= 0 && rectPos.y >= 0 && rectPos.x < row && rectPos.y < col;
-    }
+    //private bool RectPositionValid(RectPosition rectPos)
+    //{
+    //    return rectPos.x >= 0 && rectPos.y >= 0 && rectPos.x < Row && rectPos.y < Col;
+    //}
 
-    delegate bool WhetherMeetCondition(Transform transform);
+    //delegate bool WhetherMeetCondition(Transform transform);
 
-    private class AStarHexPosition
-    {
-        public Position HexPosition;
-        public int Cost;
-    }
+    //private class AStarHexPosition
+    //{
+    //    public Position HexPosition;
+    //    public int Cost;
+    //}
 
-    private class AStarHexPositionComparer : IComparer<AStarHexPosition>
-    {
-        public int Compare(AStarHexPosition x, AStarHexPosition y)
-        {
-            return x.Cost.CompareTo(y.Cost);
-        }
-    }
+    //private class AStarHexPositionComparer : IComparer<AStarHexPosition>
+    //{
+    //    public int Compare(AStarHexPosition x, AStarHexPosition y)
+    //    {
+    //        return x.Cost.CompareTo(y.Cost);
+    //    }
+    //}
 
-    private int GetCost(Position end)
-    {
-        return Position.isPositionAvailable(end.transform) ? 1 : 1000000;
-    }
+    //private int GetCost(Position end)
+    //{
+    //    return Position.isPositionAvailable(end.transform) ? 1 : 1000000;
+    //}
 
-    private IEnumerable<Position> GetNeighbors(Position position, HexGridLayout parent)
-    {
-        for (int i = 0; i < HexPosition.Direction.Length; i++)
-        {
-            //result[i] = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
-            HexPosition hexPosition = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
-            RectPosition rectPosition = Position.Hex2Rect(hexPosition);
-            if (RectPositionValid(rectPosition))
-            {
-                Transform neighbor = hexRect[rectPosition.x][rectPosition.y].transform;
-                yield return neighbor.GetComponent<Position>();
-            }
-        }
-    }
+    //private IEnumerable<Position> GetNeighbors(Position position, HexGridLayout parent)
+    //{
+    //    for (int i = 0; i < HexPosition.Direction.Length; i++)
+    //    {
+    //        //result[i] = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
+    //        HexPosition hexPosition = new HexPosition(position.hex.q + HexPosition.Direction[i].q, position.hex.r + HexPosition.Direction[i].r);
+    //        RectPosition rectPosition = Position.Hex2Rect(hexPosition);
+    //        if (RectPositionValid(rectPosition))
+    //        {
+    //            Transform neighbor = hexRect[rectPosition.x][rectPosition.y].transform;
+    //            yield return neighbor.GetComponent<Position>();
+    //        }
+    //    }
+    //}
 
-    public int AStar(Position start, Position end, out Dictionary<Position, Position> came_from)
-    {
-        const int Capacity = 20;
-        var frontier = new PriorityQueue<AStarHexPosition>(Capacity, new AStarHexPositionComparer());
-        frontier.Push(new AStarHexPosition { HexPosition = start, Cost = 0 });
-        came_from = new Dictionary<Position, Position>();
-        var cost_so_far = new Dictionary<Position, int>();
-        came_from[start] = null;
-        cost_so_far[start] = 0;
+    //public int AStar(Position start, Position end, out Dictionary<Position, Position> came_from)
+    //{
+    //    const int Capacity = 20;
+    //    var frontier = new PriorityQueue<AStarHexPosition>(Capacity, new AStarHexPositionComparer());
+    //    frontier.Push(new AStarHexPosition { HexPosition = start, Cost = 0 });
+    //    came_from = new Dictionary<Position, Position>();
+    //    var cost_so_far = new Dictionary<Position, int>();
+    //    came_from[start] = null;
+    //    cost_so_far[start] = 0;
 
-        while (frontier.Count > 0)
-        {
-            var current = frontier.Top.HexPosition;
-            frontier.Pop();
+    //    while (frontier.Count > 0)
+    //    {
+    //        var current = frontier.Top.HexPosition;
+    //        frontier.Pop();
 
-            if (current == end)
-            {
-                break;
-            }
+    //        if (current == end)
+    //        {
+    //            break;
+    //        }
 
-            foreach (var next in GetNeighbors(current, this))
-            {
-                var new_cost = cost_so_far[current] + GetCost(next);
-                if (!cost_so_far.TryGetValue(next, out int next_cost) || new_cost < next_cost)
-                {
-                    cost_so_far[next] = new_cost;
-                    var priority = new_cost + Position.Distance(end, current);
-                    frontier.Push(new AStarHexPosition { HexPosition = next, Cost = priority });
-                    came_from[next] = current;
-                }
-            }
-        }
+    //        foreach (var next in GetNeighbors(current, this))
+    //        {
+    //            var new_cost = cost_so_far[current] + GetCost(next);
+    //            if (!cost_so_far.TryGetValue(next, out int next_cost) || new_cost < next_cost)
+    //            {
+    //                cost_so_far[next] = new_cost;
+    //                var priority = new_cost + Position.Distance(end, current);
+    //                frontier.Push(new AStarHexPosition { HexPosition = next, Cost = priority });
+    //                came_from[next] = current;
+    //            }
+    //        }
+    //    }
 
-        return cost_so_far[end];
-    }
+    //    return cost_so_far[end];
+    //}
 }

@@ -15,9 +15,17 @@ public struct ChessPosOnRect
 
 public class ChessControl : MonoBehaviour
 {
-    public HexGridLayout hexGrid;
-    public GameObject reserveSeatParent;
-    public GameObject checkerboard;
+    public Camera MainCamera;
+    [SerializeField]
+    private CheckBoard checkerboard;
+    [SerializeField]
+    private ChessShop shop;
+    [SerializeField]
+    private GameObject reserveSeatContainer;
+    [SerializeField]
+    private GameObject opponentReserveSeatContainer;
+    [SerializeField]
+    private GameObject checkerboardModel;
 
     //public bool[] hexGridAvailable { get; private set; }
     //public bool[] reserveSeatAvailable { get; private set; }
@@ -33,13 +41,13 @@ public class ChessControl : MonoBehaviour
 
         GetPlaceCoordinate();
 
-        hexGrid.DeactivateMyHexGrid();
-        hexGrid.DeactivateOpponentHexGrid();
+        checkerboard.DeactivateMyHexGrid();
+        checkerboard.DeactivateOpponentHexGrid();
     }
 
     private void GetPlaceCoordinate()
     {
-        myHexagons = hexGrid.GetMyHexGridTransform();
+        myHexagons = checkerboard.GetMyHexGridTransform();
         //hexGridAvailable = new bool[hexGridCoordinate.Length];
         //for (int i = 0; i < hexGridAvailable.Length; i++)
         //{
@@ -47,11 +55,11 @@ public class ChessControl : MonoBehaviour
         //    hexGridAvailable[i] = true;
         //}
 
-        ReserveSeat = new Transform[reserveSeatParent.transform.childCount];
+        ReserveSeat = new Transform[reserveSeatContainer.transform.childCount];
         //reserveSeatAvailable = new bool[reserveSeatParent.transform.childCount];
-        for (int i = 0; i < reserveSeatParent.transform.childCount; i++)
+        for (int i = 0; i < reserveSeatContainer.transform.childCount; i++)
         {
-            ReserveSeat[i] = reserveSeatParent.transform.GetChild(i);
+            ReserveSeat[i] = reserveSeatContainer.transform.GetChild(i);
             //reserveSeatAvailable[i] = true;
         }
     }
@@ -62,8 +70,7 @@ public class ChessControl : MonoBehaviour
         Position.SetChess(chess_.transform, place);
         chess_.transform.localPosition = new Vector3(0f, 0f, 0f);
         chess_.GetComponent<ChessMove>().SetController(this);
-        chess_.GetComponent<ChessMove>().SetShop(this.GetComponent<ChessShop>());
-        chess_.GetComponent<ChessBase>().CopyProperties(chess.GetComponent<ChessBase>());
+        chess_.GetComponent<ChessBase>().SetProperty(chess.GetComponent<ChessBase>());
         return chess_;
     }
 
@@ -150,8 +157,8 @@ public class ChessControl : MonoBehaviour
                 Transform chess = place.GetChild(0);
                 opponentHexGridInfo.Add(chess, place);
                 Position pos = place.GetComponent<Position>();
-                RectPosition rectPos = hexGrid.Reflect(pos.rect);
-                hexGrid.SetChess(chess, rectPos);
+                RectPosition rectPos = checkerboard.Reflect(pos.rect);
+                checkerboard.SetChess(chess, rectPos);
             }
         }
     }
@@ -175,7 +182,7 @@ public class ChessControl : MonoBehaviour
         foreach (var pair in opponentHexGridInfo)
         {
             Position opponentPlaceHexPos = pair.Key.parent.GetComponent<Position>();
-            int dist = hexGrid.AStar(myChessPlacePos, opponentPlaceHexPos, out tempRoute);
+            int dist = checkerboard.AStar(myChessPlacePos, opponentPlaceHexPos, out tempRoute);
             if (dist < minDist)
             {
                 opponentPlace = opponentPlaceHexPos;
@@ -196,7 +203,7 @@ public class ChessControl : MonoBehaviour
             if (!Position.isPositionAvailable(place))
             {
                 Position myPlaceHexPos = place.GetComponent<Position>();
-                int dist = hexGrid.AStar(opponentChessPlacePos, myPlaceHexPos, out route);
+                int dist = checkerboard.AStar(opponentChessPlacePos, myPlaceHexPos, out route);
                 if (dist < minDist)
                 {
                     myPlace = myPlaceHexPos;
@@ -205,5 +212,47 @@ public class ChessControl : MonoBehaviour
             }
         }
         return (myPlace, route);
+    }
+
+    public void UsedByChessMoveWhenTouchChess(ChessBase chess)
+    {
+        checkerboard.ActivateMyHexGrid();
+        shop.DisplaySellingInterface(chess.GetCost());
+    }
+
+    public bool WhetherSellWhenReleaseChess(ChessBase chess)
+    {
+        return shop.Sell(chess, chess.GetCost());
+    }
+
+    public void UsedByChessMoveWhenReleaseChess()
+    {
+        checkerboard.DeactivateMyHexGrid();
+        shop.DisplayPurchaseInterface();
+    }
+
+    public float GetCheckerboardLocalScaleX()
+    {
+        return checkerboardModel.transform.localScale.x;
+    }
+
+    public float GetCheckerboardLocalScaleZ()
+    {
+        return checkerboardModel.transform.localScale.z;
+    }
+
+    public float GetCheckerboardPositionX()
+    {
+        return checkerboardModel.transform.position.x;
+    }
+
+    public float GetCheckerboardPositionZ()
+    {
+        return checkerboardModel.transform.position.z;
+    }
+
+    public Vector3 GetCheckerboardUp()
+    {
+        return checkerboardModel.transform.up;
     }
 }

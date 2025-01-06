@@ -95,8 +95,8 @@ public class BattleTest : MonoBehaviour
 
     private void OnAStarButtonClick()
     {
-        transform.parent.GetComponent<ChessControl>().hexGrid.ActivateMyHexGrid();
-        transform.parent.GetComponent<ChessControl>().hexGrid.ActivateOpponentHexGrid();
+        //transform.parent.GetComponent<ChessControl>().checkerBoard.ActivateMyHexGrid();
+        //transform.parent.GetComponent<ChessControl>().checkerBoard.ActivateOpponentHexGrid();
         drawAStar = !drawAStar;
         //DrawAStarRoute();
     }

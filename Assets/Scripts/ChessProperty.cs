@@ -3,7 +3,9 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-//抗性类型
+/// <summary>
+/// 抗性类型
+/// </summary>
 public enum AbnormalResistanceType
 {
     SILENCE, //沉默
@@ -16,6 +18,9 @@ public enum AbnormalResistanceType
     COUNT //枚举长度
 }
 
+/// <summary>
+/// 棋子的属性
+/// </summary>
 public class ChessProperty
 {
     public static readonly int MAX_LEVEL = 3; //最高等级
